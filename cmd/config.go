@@ -27,7 +27,6 @@ You can manually type in new profiles by using the following scheme:
   profile_name = ""
   name = ""
   email = ""
-  signing_key = ""
   origin = ""
 `,
 	Run: func(cmd *cobra.Command, args []string) {

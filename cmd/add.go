@@ -57,10 +57,6 @@ func addRun(cmd *cobra.Command, args []string) {
 		email = strings.TrimSpace(email)
 	}
 
-	fmt.Print("Signing key (enter to skip): ")
-	signingKey, _ := reader.ReadString('\n')
-	signingKey = strings.TrimSpace(signingKey)
-
 	currentOrigin, _ := internal.GetRepoOrigin()
 	newOrigin := ""
 
@@ -85,7 +81,6 @@ func addRun(cmd *cobra.Command, args []string) {
 		ProfileName: profileName,
 		Name:        name,
 		Email:       email,
-		SigningKey:  signingKey,
 		Origin:      newOrigin,
 	}
 
