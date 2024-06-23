@@ -55,11 +55,31 @@ func SetUserName(name string) error {
 	return cmd.Run()
 }
 
+func UnsetUserName() error {
+	if !CheckGitRepo() {
+		return errors.New("not a git repository")
+	}
+
+	_, err := GetUserName()
+
+	if err != nil {
+		return errors.New("no local username to unset")
+	}
+
+	cmd := exec.Command("git", "config", "--unset", "user.name")
+	_, err = cmd.Output()
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func GetUserName() (string, error) {
 	if !CheckGitRepo() {
 		return "", errors.New("not a git repository")
 	}
-	cmd := exec.Command("git", "config", "--get", "user.name")
+	cmd := exec.Command("git", "config", "--get", "--local", "user.name")
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err
@@ -81,10 +101,30 @@ func GetUserEmail() (string, error) {
 	if !CheckGitRepo() {
 		return "", errors.New("not a git repository")
 	}
-	cmd := exec.Command("git", "config", "--get", "user.email")
+	cmd := exec.Command("git", "config", "--get", "--local", "user.email")
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err
 	}
 	return strings.TrimSpace(string(output)), nil
+}
+
+func UnsetUserEmail() error {
+	if !CheckGitRepo() {
+		return errors.New("not a git repository")
+	}
+
+	_, err := GetUserEmail()
+
+	if err != nil {
+		return errors.New("no local email to unset")
+	}
+
+	cmd := exec.Command("git", "config", "--unset", "user.email")
+	_, err = cmd.Output()
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
