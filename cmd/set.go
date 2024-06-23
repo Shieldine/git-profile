@@ -1,55 +1,57 @@
 /*
-Copyright © 2024 Shieldine <EMAIL ADDRESS>
+Copyright © 2024 Shieldine <74987363+Shieldine@users.noreply.github.com>
 */
 package cmd
 
 import (
 	"bufio"
 	"fmt"
-	"os"
-	"strings"
-
 	"github.com/Shieldine/git-profile/internal"
 	"github.com/Shieldine/git-profile/models"
 	"github.com/spf13/cobra"
+	"os"
+	"strings"
 )
 
-// setCmd represents the set command
+var force bool
+
 var setCmd = &cobra.Command{
 	Use:     "set <profile-name>",
 	Aliases: []string{"s"},
 	Args:    cobra.ExactArgs(1),
 	Short:   "Set profile for current repository",
-	Long: `Change the current repository's profile to <profile-name>.
-
-If the origin is different than what is set in the profile, 
-you will be asked if you want to create a new profile for this origin.
-`,
+	Long:    `Change the current repository's profile to <profile-name>.'`,
 	Run: func(cmd *cobra.Command, args []string) {
 		profileName := args[0]
 		profile := internal.GetProfileByName(profileName)
 
 		if (models.ProfileConfig{}) == profile {
-			reader := bufio.NewReader(os.Stdin)
-
 			fmt.Printf("Profile %s doesn't exist.\n", profileName)
 			fmt.Print("Would you like to create it? (y/n): ")
 
-			answer, _ := reader.ReadString('\n')
-			answer = strings.TrimSpace(answer)
+			answer := ReadAnswer()
 
 			if answer == "n" {
 				fmt.Println("Nothing to do.")
 				return
-			} else if answer == "y" {
+			}
+
+			if answer == "y" {
 				addRun(cmd, []string{profileName})
-			} else {
-				fmt.Println("Invalid choice.")
-				os.Exit(1)
 			}
 		}
 
 		profile = internal.GetProfileByName(profileName)
+
+		currentOrigin, _ := internal.GetRepoOrigin()
+
+		if profile.Origin != currentOrigin {
+			fmt.Println("warning: profile origin and repo origin don't match.")
+			fmt.Printf("	Repo origin: %s\n", currentOrigin)
+			fmt.Printf("	Profile origin: %s\n", profile.Origin)
+			fmt.Println()
+		}
+
 		currentName, err := internal.GetUserName()
 		currentEmail, _ := internal.GetUserEmail()
 		if err != nil {
@@ -58,7 +60,7 @@ you will be asked if you want to create a new profile for this origin.
 		}
 
 		if profile.Name == currentName && profile.Email == currentEmail {
-			fmt.Println("Nothing to do.")
+			fmt.Println("Repository already has correct credentials. Nothing to do.")
 			return
 		}
 
@@ -74,10 +76,30 @@ you will be asked if you want to create a new profile for this origin.
 			os.Exit(1)
 		}
 
-		fmt.Printf("Profile %s set.\n", profileName)
+		fmt.Printf("Profile %s set for current repository.\n", profileName)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(setCmd)
+}
+
+func ReadAnswer() string {
+	reader := bufio.NewReader(os.Stdin)
+	answer := ""
+
+	for {
+		answer, _ = reader.ReadString('\n')
+		answer = strings.TrimSpace(answer)
+		answer = strings.ToLower(answer)
+
+		if answer == "n" {
+			break
+		} else if answer == "y" {
+			break
+		} else {
+			fmt.Println("Invalid choice. Choices are (y/n):")
+		}
+	}
+	return answer
 }
