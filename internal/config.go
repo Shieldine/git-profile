@@ -118,3 +118,15 @@ func ClearConfig() error {
 	defer file.Close()
 	return nil
 }
+
+func GetProfilesByOrigin(origin string) []models.ProfileConfig {
+	var profiles []models.ProfileConfig
+
+	for _, profile := range Conf.Profiles {
+		if profile.Origin == origin {
+			profiles = append(profiles, profile)
+		}
+	}
+
+	return profiles
+}
