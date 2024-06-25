@@ -28,10 +28,6 @@ you will be asked to pick one.
 	Run: runInit,
 }
 
-func init() {
-	rootCmd.AddCommand(initCmd)
-}
-
 func runInit(cmd *cobra.Command, args []string) {
 	currentOrigin, err := internal.GetRepoOrigin()
 
@@ -52,7 +48,7 @@ func runInit(cmd *cobra.Command, args []string) {
 			fmt.Println("Nothing to do")
 			return
 		} else {
-			addRun(cmd, []string{})
+			runAdd(cmd, []string{})
 		}
 
 		possibleProfiles = internal.GetProfilesByOrigin(currentOrigin)
@@ -147,4 +143,8 @@ func CredentialsAlreadySet(profile models.ProfileConfig) bool {
 		return true
 	}
 	return false
+}
+
+func init() {
+	rootCmd.AddCommand(initCmd)
 }

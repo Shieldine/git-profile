@@ -9,27 +9,29 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// unsetCmd represents the unset command
 var unsetCmd = &cobra.Command{
 	Use:   "unset",
 	Short: "Reset credential config to none",
 	Long: `Resets git attributes for current repository.
 If you do this, git will default to your global config.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("warning: git will default to global credentials without local configuration")
+	Run: runUnset,
+}
 
-		err := internal.UnsetUserName()
-		if err != nil {
-			fmt.Println(err)
-		}
+func runUnset(cmd *cobra.Command, args []string) {
 
-		err = internal.UnsetUserEmail()
-		if err != nil {
-			fmt.Println(err)
-		}
+	fmt.Println("warning: git will default to global credentials without local configuration")
 
-		fmt.Println("Process complete.")
-	},
+	err := internal.UnsetUserName()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = internal.UnsetUserEmail()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println("Process complete.")
 }
 
 func init() {

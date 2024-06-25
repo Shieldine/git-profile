@@ -29,22 +29,24 @@ You can manually type in new profiles by using the following scheme:
   email = ""
   origin = ""
 `,
-	Run: func(cmd *cobra.Command, args []string) {
-		editor := editorChoice
-		if editor == "" {
-			editor = "vim"
-		}
+	Run: runConfig,
+}
 
-		editorCmd := exec.Command(editor, internal.GetConfigPath())
-		editorCmd.Stdin = os.Stdin
-		editorCmd.Stdout = os.Stdout
-		editorCmd.Stderr = os.Stderr
+func runConfig(cmd *cobra.Command, args []string) {
+	editor := editorChoice
+	if editor == "" {
+		editor = "vim"
+	}
 
-		if err := editorCmd.Run(); err != nil {
-			fmt.Printf("Failed to open editor: %v\n", err)
-			return
-		}
-	},
+	editorCmd := exec.Command(editor, internal.GetConfigPath())
+	editorCmd.Stdin = os.Stdin
+	editorCmd.Stdout = os.Stdout
+	editorCmd.Stderr = os.Stderr
+
+	if err := editorCmd.Run(); err != nil {
+		fmt.Printf("Failed to open editor: %v\n", err)
+		return
+	}
 }
 
 func init() {

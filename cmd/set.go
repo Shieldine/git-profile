@@ -21,67 +21,66 @@ var setCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(1),
 	Short:   "Set profile for current repository",
 	Long:    `Change the current repository's profile to <profile-name>.'`,
-	Run: func(cmd *cobra.Command, args []string) {
-		profileName := args[0]
-		profile := internal.GetProfileByName(profileName)
+	Run:     runSet,
+}
 
-		if (models.ProfileConfig{}) == profile {
-			fmt.Printf("Profile %s doesn't exist.\n", profileName)
-			fmt.Print("Would you like to create it? (y/n): ")
+func runSet(cmd *cobra.Command, args []string) {
 
-			answer := ReadAnswer()
+	profileName := args[0]
+	profile := internal.GetProfileByName(profileName)
 
-			if answer == "n" {
-				fmt.Println("Nothing to do.")
-				return
-			}
+	if (models.ProfileConfig{}) == profile {
+		fmt.Printf("Profile %s doesn't exist.\n", profileName)
+		fmt.Print("Would you like to create it? (y/n): ")
 
-			if answer == "y" {
-				addRun(cmd, []string{profileName})
-			}
-		}
+		answer := ReadAnswer()
 
-		profile = internal.GetProfileByName(profileName)
-
-		currentOrigin, _ := internal.GetRepoOrigin()
-
-		if profile.Origin != currentOrigin {
-			fmt.Println("warning: profile origin and repo origin don't match.")
-			fmt.Printf("	Repo origin: %s\n", currentOrigin)
-			fmt.Printf("	Profile origin: %s\n", profile.Origin)
-			fmt.Println()
-		}
-
-		currentName, err := internal.GetUserName()
-		currentEmail, _ := internal.GetUserEmail()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		if profile.Name == currentName && profile.Email == currentEmail {
-			fmt.Println("Repository already has correct credentials. Nothing to do.")
+		if answer == "n" {
+			fmt.Println("Nothing to do.")
 			return
 		}
 
-		err = internal.SetUserName(profile.Name)
-		if err != nil {
-			fmt.Printf("Error setting user name: %s\n", err)
-			os.Exit(1)
+		if answer == "y" {
+			runAdd(cmd, []string{profileName})
 		}
+	}
 
-		err = internal.SetUserEmail(profile.Email)
-		if err != nil {
-			fmt.Printf("Error setting user email: %s\n", err)
-			os.Exit(1)
-		}
+	profile = internal.GetProfileByName(profileName)
 
-		fmt.Printf("Profile %s set for current repository.\n", profileName)
-	},
-}
+	currentOrigin, _ := internal.GetRepoOrigin()
 
-func init() {
-	rootCmd.AddCommand(setCmd)
+	if profile.Origin != currentOrigin {
+		fmt.Println("warning: profile origin and repo origin don't match.")
+		fmt.Printf("	Repo origin: %s\n", currentOrigin)
+		fmt.Printf("	Profile origin: %s\n", profile.Origin)
+		fmt.Println()
+	}
+
+	currentName, err := internal.GetUserName()
+	currentEmail, _ := internal.GetUserEmail()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	if profile.Name == currentName && profile.Email == currentEmail {
+		fmt.Println("Repository already has correct credentials. Nothing to do.")
+		return
+	}
+
+	err = internal.SetUserName(profile.Name)
+	if err != nil {
+		fmt.Printf("Error setting user name: %s\n", err)
+		os.Exit(1)
+	}
+
+	err = internal.SetUserEmail(profile.Email)
+	if err != nil {
+		fmt.Printf("Error setting user email: %s\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Profile %s set for current repository.\n", profileName)
 }
 
 func ReadAnswer() string {
@@ -102,4 +101,8 @@ func ReadAnswer() string {
 		}
 	}
 	return answer
+}
+
+func init() {
+	rootCmd.AddCommand(setCmd)
 }

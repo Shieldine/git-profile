@@ -27,18 +27,10 @@ You will be asked to provide your credentials and an origin.
 Use flags to provide them directly.
 The origin of your current repository will already be filled in
 and subject to confirm or change.`,
-	Run: addRun,
+	Run: runAdd,
 }
 
-func init() {
-	rootCmd.AddCommand(addCmd)
-	addCmd.Flags().StringVarP(&name, "name", "n", "", "Set the name directly")
-	addCmd.Flags().StringVarP(&email, "email", "e", "", "Set the email directly")
-	addCmd.Flags().StringVarP(&origin, "origin", "o", "", "Set the origin directly."+
-		" Type \"auto\" to accept origin of the current repository")
-}
-
-func addRun(cmd *cobra.Command, args []string) {
+func runAdd(cmd *cobra.Command, args []string) {
 	reader := bufio.NewReader(os.Stdin)
 
 	if len(args) == 0 {
@@ -100,4 +92,12 @@ func addRun(cmd *cobra.Command, args []string) {
 	}
 
 	fmt.Printf("Added profile: %s for origin %s\n", profileName, newOrigin)
+}
+
+func init() {
+	rootCmd.AddCommand(addCmd)
+	addCmd.Flags().StringVarP(&name, "name", "n", "", "Set the name directly")
+	addCmd.Flags().StringVarP(&email, "email", "e", "", "Set the email directly")
+	addCmd.Flags().StringVarP(&origin, "origin", "o", "", "Set the origin directly."+
+		" Type \"auto\" to accept origin of the current repository")
 }
