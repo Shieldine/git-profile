@@ -35,7 +35,7 @@ func init() {
 	addCmd.Flags().StringVarP(&name, "name", "n", "", "Set the name directly")
 	addCmd.Flags().StringVarP(&email, "email", "e", "", "Set the email directly")
 	addCmd.Flags().StringVarP(&origin, "origin", "o", "", "Set the origin directly."+
-		"Type \"auto\" to accept origin of the current repository")
+		" Type \"auto\" to accept origin of the current repository")
 }
 
 func addRun(cmd *cobra.Command, args []string) {
