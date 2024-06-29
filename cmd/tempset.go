@@ -12,17 +12,17 @@ import (
 	"strings"
 )
 
-var tempsetCmd = &cobra.Command{
+var tempSetCmd = &cobra.Command{
 	Use:   "tempset",
 	Short: "Set credentials without defining a profile",
 	Long: `Set git credentials for the current repository without saving them in a profile.
 The credentials can be passed as flags right away.
 If you don't pass them, you will be asked to provide a name, email and signing key (optional).
 `,
-	Run: runTempset,
+	Run: runTempSet,
 }
 
-func runTempset(cmd *cobra.Command, args []string) {
+func runTempSet(*cobra.Command, []string) {
 
 	reader := bufio.NewReader(os.Stdin)
 
@@ -84,7 +84,7 @@ func runTempset(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	rootCmd.AddCommand(tempsetCmd)
-	tempsetCmd.Flags().StringVarP(&name, "name", "n", "", "Pass the name directly")
-	tempsetCmd.Flags().StringVarP(&email, "email", "e", "", "Pass the email directly")
+	rootCmd.AddCommand(tempSetCmd)
+	tempSetCmd.Flags().StringVarP(&name, "name", "n", "", "Pass the name directly")
+	tempSetCmd.Flags().StringVarP(&email, "email", "e", "", "Pass the email directly")
 }

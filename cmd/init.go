@@ -28,7 +28,7 @@ you will be asked to pick one.
 	Run: runInit,
 }
 
-func runInit(cmd *cobra.Command, args []string) {
+func runInit(cmd *cobra.Command, _ []string) {
 	currentOrigin, err := internal.GetRepoOrigin()
 
 	if err != nil {

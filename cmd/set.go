@@ -13,8 +13,6 @@ import (
 	"strings"
 )
 
-var force bool
-
 var setCmd = &cobra.Command{
 	Use:     "set <profile-name>",
 	Aliases: []string{"s"},

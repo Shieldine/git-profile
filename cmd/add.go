@@ -1,6 +1,4 @@
-/*
-Copyright © 2024 Shieldine <74987363+Shieldine@users.noreply.github.com>
-*/
+// Package cmd /*
 package cmd
 
 import (
@@ -30,7 +28,7 @@ and subject to confirm or change.`,
 	Run: runAdd,
 }
 
-func runAdd(cmd *cobra.Command, args []string) {
+func runAdd(_ *cobra.Command, args []string) {
 	reader := bufio.NewReader(os.Stdin)
 
 	if len(args) == 0 {

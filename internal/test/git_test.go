@@ -19,12 +19,18 @@ func setupTestRepo(t *testing.T) (string, func()) {
 	cmd := exec.Command("git", "init")
 	cmd.Dir = tempDir
 	if err := cmd.Run(); err != nil {
-		os.RemoveAll(tempDir)
+		err := os.RemoveAll(tempDir)
+		if err != nil {
+			t.Fatal(err)
+		}
 		t.Fatal(err)
 	}
 
 	return tempDir, func() {
-		os.RemoveAll(tempDir)
+		err := os.RemoveAll(tempDir)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 }
 
@@ -32,13 +38,10 @@ func TestCheckGitRepo(t *testing.T) {
 	tempDir, cleanup := setupTestRepo(t)
 	defer cleanup()
 
-	// Change the working directory to the temporary git repository
-	oldDir, err := os.Getwd()
+	err := os.Chdir(tempDir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(oldDir)
-	os.Chdir(tempDir)
 
 	if !internal.CheckGitRepo() {
 		t.Error("expected CheckGitRepo to return true in a git repository")
@@ -49,13 +52,10 @@ func TestGetRepoOrigin(t *testing.T) {
 	tempDir, cleanup := setupTestRepo(t)
 	defer cleanup()
 
-	// Change the working directory to the temporary git repository
-	oldDir, err := os.Getwd()
+	err := os.Chdir(tempDir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(oldDir)
-	os.Chdir(tempDir)
 
 	cmd := exec.Command("git", "remote", "add", "origin", "https://example.com/repo.git")
 	if err := cmd.Run(); err != nil {
@@ -75,13 +75,10 @@ func TestSetUserName(t *testing.T) {
 	tempDir, cleanup := setupTestRepo(t)
 	defer cleanup()
 
-	// Change the working directory to the temporary git repository
-	oldDir, err := os.Getwd()
+	err := os.Chdir(tempDir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(oldDir)
-	os.Chdir(tempDir)
 
 	name := "Test User"
 	if err := internal.SetUserName(name); err != nil {
@@ -103,13 +100,10 @@ func TestUnsetUserName(t *testing.T) {
 	tempDir, cleanup := setupTestRepo(t)
 	defer cleanup()
 
-	// Change the working directory to the temporary git repository
-	oldDir, err := os.Getwd()
+	err := os.Chdir(tempDir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(oldDir)
-	os.Chdir(tempDir)
 
 	cmd := exec.Command("git", "config", "--local", "user.name", "Test User")
 	if err := cmd.Run(); err != nil {
@@ -130,13 +124,10 @@ func TestGetUserName(t *testing.T) {
 	tempDir, cleanup := setupTestRepo(t)
 	defer cleanup()
 
-	// Change the working directory to the temporary git repository
-	oldDir, err := os.Getwd()
+	err := os.Chdir(tempDir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(oldDir)
-	os.Chdir(tempDir)
 
 	cmd := exec.Command("git", "config", "--local", "user.name", "Test User")
 	if err := cmd.Run(); err != nil {
@@ -156,13 +147,10 @@ func TestSetUserEmail(t *testing.T) {
 	tempDir, cleanup := setupTestRepo(t)
 	defer cleanup()
 
-	// Change the working directory to the temporary git repository
-	oldDir, err := os.Getwd()
+	err := os.Chdir(tempDir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(oldDir)
-	os.Chdir(tempDir)
 
 	email := "test@example.com"
 	if err := internal.SetUserEmail(email); err != nil {
@@ -184,13 +172,10 @@ func TestUnsetUserEmail(t *testing.T) {
 	tempDir, cleanup := setupTestRepo(t)
 	defer cleanup()
 
-	// Change the working directory to the temporary git repository
-	oldDir, err := os.Getwd()
+	err := os.Chdir(tempDir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(oldDir)
-	os.Chdir(tempDir)
 
 	cmd := exec.Command("git", "config", "--local", "user.email", "test@example.com")
 	if err := cmd.Run(); err != nil {
@@ -211,13 +196,10 @@ func TestGetUserEmail(t *testing.T) {
 	tempDir, cleanup := setupTestRepo(t)
 	defer cleanup()
 
-	// Change the working directory to the temporary git repository
-	oldDir, err := os.Getwd()
+	err := os.Chdir(tempDir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(oldDir)
-	os.Chdir(tempDir)
 
 	cmd := exec.Command("git", "config", "--local", "user.email", "test@example.com")
 	if err := cmd.Run(); err != nil {

@@ -25,7 +25,7 @@ The updated values can be passed as flags.
 	Run: runUpdate,
 }
 
-func runUpdate(cmd *cobra.Command, args []string) {
+func runUpdate(_ *cobra.Command, args []string) {
 	reader := bufio.NewReader(os.Stdin)
 	profileName := args[0]
 

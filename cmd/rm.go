@@ -29,7 +29,7 @@ This action cannot be undone.
 	Run: runRm,
 }
 
-func runRm(cmd *cobra.Command, args []string) {
+func runRm(_ *cobra.Command, args []string) {
 	fmt.Println("Initialising profile removal...")
 
 	if all {
