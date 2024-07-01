@@ -25,3 +25,15 @@ over your attributes.
 
 
 ## Development
+This project is in active development.
+
+If you find any bugs and/or have feature suggestions, feel free to
+create issues and pull requests.
+
+Before submitting an issue, please check if it hasn't shown up in other
+issues to avoid duplicates.
+
+## License
+
+This project is licensed under Apache 2.0.
+You can find the license [here](./LICENSE).
