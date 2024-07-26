@@ -13,23 +13,25 @@ var checkCmd = &cobra.Command{
 	Use:   "check",
 	Short: "Display the currently set credentials",
 	Long:  `Check what credentials are currently set in the current project.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		name, err := internal.GetUserName()
+	Run:   runCheck,
+}
 
-		if err != nil {
-			fmt.Println("error: not a git repository or username not set")
-		} else {
-			fmt.Printf("Current name: %s\n", name)
-		}
+func runCheck(cmd *cobra.Command, args []string) {
+	name, err := internal.GetUserName()
 
-		email, err := internal.GetUserEmail()
+	if err != nil {
+		fmt.Println("error: not a git repository or username not set")
+	} else {
+		fmt.Printf("Current name: %s\n", name)
+	}
 
-		if err != nil {
-			fmt.Println("error: not a git repository or email not set")
-		} else {
-			fmt.Printf("Current email: %s\n", email)
-		}
-	},
+	email, err := internal.GetUserEmail()
+
+	if err != nil {
+		fmt.Println("error: not a git repository or email not set")
+	} else {
+		fmt.Printf("Current email: %s\n", email)
+	}
 }
 
 func init() {

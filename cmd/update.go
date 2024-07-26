@@ -8,10 +8,9 @@ import (
 	"fmt"
 	"github.com/Shieldine/git-profile/internal"
 	"github.com/Shieldine/git-profile/models"
+	"github.com/spf13/cobra"
 	"os"
 	"strings"
-
-	"github.com/spf13/cobra"
 )
 
 var editCmd = &cobra.Command{
@@ -23,71 +22,73 @@ var editCmd = &cobra.Command{
 You will be asked to update your credentials and origin.
 The updated values can be passed as flags.
 `,
-	Run: func(cmd *cobra.Command, args []string) {
-		reader := bufio.NewReader(os.Stdin)
-		profileName := args[0]
+	Run: runUpdate,
+}
 
-		oldProfile := internal.GetProfileByName(profileName)
+func runUpdate(cmd *cobra.Command, args []string) {
+	reader := bufio.NewReader(os.Stdin)
+	profileName := args[0]
 
-		if (models.ProfileConfig{}) == oldProfile {
-			fmt.Printf("Profile %s doesn't exist.\n", profileName)
-			return
-		}
+	oldProfile := internal.GetProfileByName(profileName)
+
+	if (models.ProfileConfig{}) == oldProfile {
+		fmt.Printf("Profile %s doesn't exist.\n", profileName)
+		return
+	}
+
+	if name == "" {
+
+		fmt.Printf("Name (enter to keep %s): ", oldProfile.Name)
+		name, _ = reader.ReadString('\n')
+		name = strings.TrimSpace(name)
 
 		if name == "" {
-
-			fmt.Printf("Name (enter to keep %s): ", oldProfile.Name)
-			name, _ = reader.ReadString('\n')
-			name = strings.TrimSpace(name)
-
-			if name == "" {
-				name = oldProfile.Name
-			}
+			name = oldProfile.Name
 		}
+	}
+
+	if email == "" {
+		fmt.Printf("E-mail (enter to keep %s): ", oldProfile.Email)
+		email, _ = reader.ReadString('\n')
+		email = strings.TrimSpace(email)
 
 		if email == "" {
-			fmt.Printf("E-mail (enter to keep %s): ", oldProfile.Email)
-			email, _ = reader.ReadString('\n')
-			email = strings.TrimSpace(email)
-
-			if email == "" {
-				email = oldProfile.Email
-			}
+			email = oldProfile.Email
 		}
+	}
 
-		currentOrigin, _ := internal.GetRepoOrigin()
-		newOrigin := ""
+	currentOrigin, _ := internal.GetRepoOrigin()
+	newOrigin := ""
 
-		if origin == "" {
-			fmt.Printf("Origin (enter to keep %s): ", oldProfile.Origin)
+	if origin == "" {
+		fmt.Printf("Origin (enter to keep %s): ", oldProfile.Origin)
 
-			newOrigin, _ = reader.ReadString('\n')
-			newOrigin = strings.TrimSpace(newOrigin)
+		newOrigin, _ = reader.ReadString('\n')
+		newOrigin = strings.TrimSpace(newOrigin)
 
-			if newOrigin == "" {
-				newOrigin = oldProfile.Origin
-			}
+		if newOrigin == "" {
+			newOrigin = oldProfile.Origin
+		}
+	} else {
+		if origin == "auto" {
+			newOrigin = currentOrigin
 		} else {
-			if origin == "auto" {
-				newOrigin = currentOrigin
-			} else {
-				newOrigin = origin
-			}
+			newOrigin = origin
 		}
+	}
 
-		err := internal.EditProfile(args[0], models.ProfileConfig{
-			ProfileName: profileName,
-			Name:        name,
-			Email:       email,
-			Origin:      newOrigin,
-		})
-		if err != nil {
-			fmt.Printf("Error updating profile: %v\n", err)
-			return
-		}
+	err := internal.EditProfile(args[0], models.ProfileConfig{
+		ProfileName: profileName,
+		Name:        name,
+		Email:       email,
+		Origin:      newOrigin,
+	})
+	if err != nil {
+		fmt.Printf("Error updating profile: %v\n", err)
+		return
+	}
 
-		fmt.Printf("Profile %s updated\n", profileName)
-	},
+	fmt.Printf("Profile %s updated\n", profileName)
 }
 
 func init() {

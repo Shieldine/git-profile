@@ -5,11 +5,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/Shieldine/git-profile/models"
-	"os"
-
 	"github.com/Shieldine/git-profile/internal"
+	"github.com/Shieldine/git-profile/models"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var all bool
@@ -27,73 +26,75 @@ Use other flags to remove all profiles containing a specific name, email or orig
 
 This action cannot be undone.
 `,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Initialising profile removal...")
+	Run: runRm,
+}
 
-		if all {
-			err := internal.ClearConfig()
-			if err != nil {
-				fmt.Println("Error removing all profiles:", err)
-				os.Exit(1)
-			}
-			fmt.Println("All profiles removed from configuration.")
-			return
+func runRm(cmd *cobra.Command, args []string) {
+	fmt.Println("Initialising profile removal...")
+
+	if all {
+		err := internal.ClearConfig()
+		if err != nil {
+			fmt.Println("Error removing all profiles:", err)
+			os.Exit(1)
+		}
+		fmt.Println("All profiles removed from configuration.")
+		return
+	}
+
+	if len(args) != 0 {
+		if name != "" || email != "" || origin != "" {
+			fmt.Println("Error: profile-name and flags cannot be provided together.")
+			fmt.Println("Either provide a name or filtering options.")
+			os.Exit(1)
 		}
 
-		if len(args) != 0 {
-			if name != "" || email != "" || origin != "" {
-				fmt.Println("Error: profile-name and flags cannot be provided together.")
-				fmt.Println("Either provide a name or filtering options.")
+		profile := args[0]
+		err := internal.DeleteProfile(profile)
+		if err != nil {
+			fmt.Printf("Error removing profile %s: %v\n", profile, err)
+			os.Exit(1)
+		}
+		fmt.Printf("Profile %s removed.\n", profile)
+		return
+	}
+
+	Profiles := internal.GetAllProfiles()
+	var profiles []models.ProfileConfig
+
+	profiles = append(profiles, Profiles...)
+
+	if len(profiles) == 0 {
+		fmt.Println("No profiles to remove.")
+	} else {
+		count := 0
+
+		for _, profile := range profiles {
+			if name != "" && name != profile.Name {
+				continue
+			} else if email != "" && email != profile.Email {
+				continue
+			} else if origin != "" && origin != profile.Origin {
+				continue
+			}
+
+			err := internal.DeleteProfile(profile.ProfileName)
+			if err != nil {
+				fmt.Printf("Error removing profile %s: %v\n", profile.ProfileName, err)
 				os.Exit(1)
 			}
 
-			profile := args[0]
-			err := internal.DeleteProfile(profile)
-			if err != nil {
-				fmt.Printf("Error removing profile %s: %v\n", profile, err)
-				os.Exit(1)
-			}
-			fmt.Printf("Profile %s removed.\n", profile)
-			return
+			fmt.Printf("Profile %s removed.\n", profile.ProfileName)
+			count += 1
 		}
 
-		Profiles := internal.GetAllProfiles()
-		var profiles []models.ProfileConfig
-
-		profiles = append(profiles, Profiles...)
-
-		if len(profiles) == 0 {
-			fmt.Println("No profiles to remove.")
+		if count > 0 {
+			fmt.Println()
+			fmt.Printf("Successfuly removed %d profiles.\n", count)
 		} else {
-			count := 0
-
-			for _, profile := range profiles {
-				if name != "" && name != profile.Name {
-					continue
-				} else if email != "" && email != profile.Email {
-					continue
-				} else if origin != "" && origin != profile.Origin {
-					continue
-				}
-
-				err := internal.DeleteProfile(profile.ProfileName)
-				if err != nil {
-					fmt.Printf("Error removing profile %s: %v\n", profile.ProfileName, err)
-					os.Exit(1)
-				}
-
-				fmt.Printf("Profile %s removed.\n", profile.ProfileName)
-				count += 1
-			}
-
-			if count > 0 {
-				fmt.Println()
-				fmt.Printf("Successfuly removed %d profiles.\n", count)
-			} else {
-				fmt.Println("No profiles to remove.")
-			}
+			fmt.Println("No profiles to remove.")
 		}
-	},
+	}
 }
 
 func init() {
