@@ -15,11 +15,13 @@ import (
 )
 
 var addCmd = &cobra.Command{
-	Use:     "add <profile-name>",
-	Args:    cobra.ExactArgs(1),
+	Use:     "add [profile-name]",
+	Args:    cobra.MaximumNArgs(1),
 	Aliases: []string{"a"},
 	Short:   "Adds a new profile",
-	Long: `Define a new profile with the short name <profile-name>. 
+	Long: `Define a new profile with the short name <profile-name>.
+Passing the profile name as an arg is optional. If not provided, you will
+be asked to provide one.
 
 You will be asked to provide your credentials and an origin.
 Use flags to provide them directly.
@@ -37,13 +39,20 @@ func init() {
 }
 
 func addRun(cmd *cobra.Command, args []string) {
-	profileName := args[0]
+	reader := bufio.NewReader(os.Stdin)
+
+	if len(args) == 0 {
+		fmt.Print("Short name of the profile: ")
+		profileName, _ = reader.ReadString('\n')
+		profileName = strings.TrimSpace(profileName)
+	} else {
+		profileName = args[0]
+	}
+
 	if (models.ProfileConfig{}) != internal.GetProfileByName(profileName) {
 		fmt.Printf("Profile %s already exists\n", profileName)
 		return
 	}
-
-	reader := bufio.NewReader(os.Stdin)
 
 	if name == "" {
 		fmt.Print("Name: ")
