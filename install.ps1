@@ -1,7 +1,7 @@
 # Define variables
 $repo = "Shieldine/git-profile"
 $installDir = "$Env:UserProfile\AppData\Local\Programs\git-profile"
-$exeName = "git-profile.exe" # Name of the executable
+$exeName = "git-profile.exe"
 
 # Create installation directory if it doesn't exist
 if (-Not (Test-Path -Path $installDir)) {
@@ -41,13 +41,19 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 # Remove the zip file after extraction
 Remove-Item -Path $zipFile
 
-# Add the installation directory to the system PATH
-[Environment]::SetEnvironmentVariable("Path", $env:Path + ";$installDir", [System.EnvironmentVariableTarget]::User)
-$env:Path = [System.Environment]::GetEnvironmentVariable("Path","User")
+# Prompt the user for input
+$userResponse = Read-Host "Do you want to add git-profile to PATH? (y/n):"
 
-# Verify that the executable is added to the PATH
-if (Get-Command $exeName -ErrorAction SilentlyContinue) {
-    Write-Output "Installation successful. $exeName is now in the PATH."
+# Convert the response to lowercase
+$userResponse = $userResponse.ToLower()
+
+if ($userResponse -eq 'y' -or $userResponse -eq 'yes') {
+    # Set the environment variable
+    [Environment]::SetEnvironmentVariable("Path", $env:Path + ";$installDir", [System.EnvironmentVariableTarget]::User)
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","User")
+    Write-Host "Added $installDir to PATH."
 } else {
-    Write-Output "Installation successful, but adding $exeName to PATH has failed. Please set it manually."
+    Write-Host "The program was not added to PATH."
 }
+
+Write-Output "Installation finished."

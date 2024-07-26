@@ -20,7 +20,7 @@ over your attributes.
 
 ## Installation
 There are two installation scripts included in this repository: one for UNIX-based systems and one for Windows users.
-Both scripts automatically add the executable to PATH.
+Both scripts automatically add the executable to PATH if requested.
 
 ### For Linux/MacOS users:
 
@@ -33,7 +33,7 @@ If not, run:
 curl -fsSL https://raw.githubusercontent.com/Shieldine/git-profile/main/install.sh | bash
 ```
 
-The executable is located in `~/bin/`
+The executable is located in `~/.loca/bin/git-profile`
 
 ### For Windows users:
 

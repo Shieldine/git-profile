@@ -60,40 +60,29 @@ URL="https://github.com/$REPO/releases/download/$LATEST_RELEASE/$ARCHIVE"
 echo "Downloading $ARCHIVE from $URL..."
 curl -L -o /tmp/"$ARCHIVE" "$URL"
 
-# Extract the archive
-echo "Preparing to extract $ARCHIVE..."
-mkdir -p /tmp/git-profile
-
 if [ $? -ne 0 ]; then
-    echo "error: unable to create temporary download directory $INSTALL_DIR"
+    echo "error: failed to download $ARCHIVE from $URL"
     exit 1
 fi
 
-echo "Extracting $ARCHIVE..."
+echo "Extracting $ARCHIVE to $INSTALL_DIR..."
 
-tar -xzf /tmp/"$ARCHIVE" -C /tmp/git-profile
-if [ $? -ne 0 ]; then
-    echo "error: unable to extract $ARCHIVE"
-    exit 1
-fi
-
-# move to install dir
+# create install dir
 mkdir -p "$INSTALL_DIR"
 if [ $? -ne 0 ]; then
     echo "error: unable to create install dir $INSTALL_DIR"
     exit 1
 fi
 
-mv /tmp/git-profile/git-profile "$INSTALL_DIR"/git-profile
+# extract archive
+tar -xzf /tmp/"$ARCHIVE" -C "$INSTALL_DIR"
 if [ $? -ne 0 ]; then
-    echo "error: unable to move to install dir $INSTALL_DIR"
+    echo "error: unable to extract $ARCHIVE"
     exit 1
 fi
-echo "Executable moved to $INSTALL_DIR"
 
-# clean up tmp files
+# clean up tmp file
 rm /tmp/"$ARCHIVE"
-rm -rf /tmp/git-profile/
 
 # make git-profile executable
 chmod +x "$INSTALL_DIR"/git-profile
@@ -102,18 +91,22 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Add install dir to PATH if not already there
-[[ ":$PATH:" != *":$INSTALL_DIR:"* ]] && PATH="$INSTALL_DIR:${PATH}"
+read -r -p "Do you want to add the program to PATH? (y/n): " user_response
+user_response=$(echo "$user_response" | tr '[:upper:]' '[:lower:]')
 
-# Check if the Fish shell is in use and add to Fish's user paths
-if [ "$FISH_VERSION" = "" ]; then
-  echo "Fish shell detected. Adding to fish path..."
-  fish -c "fish_add_path $INSTALL_DIR"
-fi
 
-# Verify installation
-if command -v git-profile &> /dev/null; then
-    echo "Installation successful!"
+if [[ "$user_response" == "y" || "$user_response" == "yes" ]]; then
+
+  [[ ":$PATH:" != *":$INSTALL_DIR:"* ]] && PATH="$INSTALL_DIR:${PATH}"
+  echo "Added $INSTALL_DIR to PATH."
+
+  if command -v fish &> /dev/null; then
+    echo "Fish shell detected. Adding to fish path..."
+    fish -c "fish_add_path $INSTALL_DIR"
+  fi
+
 else
-    echo "Installation failed."
+  echo "The program was not added to PATH."
 fi
+
+echo "Installation finished."
