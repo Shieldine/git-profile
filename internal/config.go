@@ -32,7 +32,7 @@ func init() {
 			fmt.Printf("Failed to create config file: %v\n", err)
 			os.Exit(1)
 		}
-		file.Close()
+		_ = file.Close()
 		Conf = Config{Profiles: []models.ProfileConfig{}}
 	}
 
@@ -60,10 +60,12 @@ func SaveConfig() error {
 	if err != nil {
 		return fmt.Errorf("failed to save config file: %v", err)
 	}
-	defer file.Close()
+
 	if err := toml.NewEncoder(file).Encode(Conf); err != nil {
 		return fmt.Errorf("failed to encode config to file: %v", err)
 	}
+
+	_ = file.Close()
 	return nil
 }
 
@@ -120,7 +122,7 @@ func ClearConfig() error {
 	if err != nil {
 		return fmt.Errorf("failed to reset config file: %v", err)
 	}
-	defer file.Close()
+	_ = file.Close()
 	return nil
 }
 

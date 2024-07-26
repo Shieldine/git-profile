@@ -32,7 +32,7 @@ You can manually type in new profiles by using the following scheme:
 	Run: runConfig,
 }
 
-func runConfig(cmd *cobra.Command, args []string) {
+func runConfig(*cobra.Command, []string) {
 	editor := editorChoice
 	if editor == "" {
 		editor = "vim"

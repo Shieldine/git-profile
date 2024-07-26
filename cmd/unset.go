@@ -17,7 +17,7 @@ If you do this, git will default to your global config.`,
 	Run: runUnset,
 }
 
-func runUnset(cmd *cobra.Command, args []string) {
+func runUnset(*cobra.Command, []string) {
 
 	fmt.Println("warning: git will default to global credentials without local configuration")
 

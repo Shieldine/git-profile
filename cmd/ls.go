@@ -30,7 +30,7 @@ Use flags to filter for a specific origin, name or email.
 	Run: runLs,
 }
 
-func runLs(cmd *cobra.Command, args []string) {
+func runLs(_ *cobra.Command, args []string) {
 	if len(args) != 0 {
 		profileName = args[0]
 

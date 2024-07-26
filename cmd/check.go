@@ -16,7 +16,7 @@ var checkCmd = &cobra.Command{
 	Run:   runCheck,
 }
 
-func runCheck(cmd *cobra.Command, args []string) {
+func runCheck(*cobra.Command, []string) {
 	name, err := internal.GetUserName()
 
 	if err != nil {

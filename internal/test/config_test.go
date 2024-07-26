@@ -11,7 +11,7 @@ import (
 )
 
 func setupTempConfig(t *testing.T) (string, func()) {
-	tempDir, err := os.MkdirTemp("", "configdir")
+	tempDir, err := os.MkdirTemp("", "configTest")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,7 +26,10 @@ func setupTempConfig(t *testing.T) (string, func()) {
 	}
 
 	return tempConfigPath, func() {
-		os.RemoveAll(tempDir)
+		err := os.RemoveAll(tempDir)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
 	}
 }
 
@@ -87,10 +90,13 @@ func TestEditProfile(t *testing.T) {
 	defer cleanup()
 
 	profile := models.ProfileConfig{ProfileName: "test"}
-	internal.AddProfile(profile)
+	err := internal.AddProfile(profile)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	updatedProfile := models.ProfileConfig{ProfileName: "updated"}
-	err := internal.EditProfile("test", updatedProfile)
+	err = internal.EditProfile("test", updatedProfile)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -105,9 +111,12 @@ func TestDeleteProfile(t *testing.T) {
 	defer cleanup()
 
 	profile := models.ProfileConfig{ProfileName: "test"}
-	internal.AddProfile(profile)
+	err := internal.AddProfile(profile)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
-	err := internal.DeleteProfile("test")
+	err = internal.DeleteProfile("test")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -122,7 +131,10 @@ func TestGetProfileByName(t *testing.T) {
 	defer cleanup()
 
 	profile := models.ProfileConfig{ProfileName: "test"}
-	internal.AddProfile(profile)
+	err := internal.AddProfile(profile)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	retrievedProfile := internal.GetProfileByName("test")
 	if retrievedProfile.ProfileName != "test" {
@@ -136,8 +148,14 @@ func TestGetAllProfiles(t *testing.T) {
 
 	profile1 := models.ProfileConfig{ProfileName: "test1"}
 	profile2 := models.ProfileConfig{ProfileName: "test2"}
-	internal.AddProfile(profile1)
-	internal.AddProfile(profile2)
+	err := internal.AddProfile(profile1)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	err = internal.AddProfile(profile2)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	profiles := internal.GetAllProfiles()
 	if len(profiles) != 2 {
@@ -150,9 +168,12 @@ func TestClearConfig(t *testing.T) {
 	defer cleanup()
 
 	profile := models.ProfileConfig{ProfileName: "test"}
-	internal.AddProfile(profile)
+	err := internal.AddProfile(profile)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
-	err := internal.ClearConfig()
+	err = internal.ClearConfig()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -176,9 +197,18 @@ func TestGetProfilesByOrigin(t *testing.T) {
 	profile1 := models.ProfileConfig{ProfileName: "test1", Origin: "origin1"}
 	profile2 := models.ProfileConfig{ProfileName: "test2", Origin: "origin2"}
 	profile3 := models.ProfileConfig{ProfileName: "test3", Origin: "origin1"}
-	internal.AddProfile(profile1)
-	internal.AddProfile(profile2)
-	internal.AddProfile(profile3)
+	err := internal.AddProfile(profile1)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	err = internal.AddProfile(profile2)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	err = internal.AddProfile(profile3)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	profiles := internal.GetProfilesByOrigin("origin1")
 	if len(profiles) != 2 {
