@@ -1,7 +1,7 @@
 #!/bin/bash
 
 REPO="Shieldine/git-profile"
-INSTALL_DIR="$HOME/.local/bin"
+INSTALL_DIR="$HOME/.local/bin/git-profile"
 
 OS=$(uname -s)
 ARCH=$(uname -m)
