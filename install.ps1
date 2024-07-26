@@ -1,6 +1,6 @@
 # Define variables
 $repo = "Shieldine/git-profile"
-$installDir = "C:\git-profile"
+$installDir = "$Env:UserProfile\AppData\Local\Programs\git-profile"
 $exeName = "git-profile.exe" # Name of the executable
 
 # Create installation directory if it doesn't exist

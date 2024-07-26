@@ -29,7 +29,7 @@ var addCmd = &cobra.Command{
 	Use:     "add [profile-name]",
 	Args:    cobra.MaximumNArgs(1),
 	Aliases: []string{"a"},
-	Short:   "Adds a new profile",
+	Short:   "Add a new profile",
 	Long: `Define a new profile with the short name <profile-name>.
 Passing the profile name as an arg is optional. If not provided, you will
 be asked to provide one.
