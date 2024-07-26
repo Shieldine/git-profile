@@ -43,7 +43,12 @@ func init() {
 	}
 }
 
+func SetConfigPath(path string) {
+	configPath = path
+}
+
 func LoadConfig() error {
+	Conf.Profiles = []models.ProfileConfig{}
 	if _, err := toml.DecodeFile(configPath, &Conf); err != nil {
 		return fmt.Errorf("failed to decode internal file: %v", err)
 	}
