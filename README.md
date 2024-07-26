@@ -54,7 +54,7 @@ Usage:
   git-profile [command]
 
 Available Commands:
-  add         Adds a new profile
+  add         Add a new profile
   check       Display the currently set credentials
   completion  Generate the autocompletion script for the specified shell
   config      Edit profile configuration file
