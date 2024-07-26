@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Shieldine <EMAIL ADDRESS>
+Copyright © 2024 Shieldine <E74987363+Shieldine@users.noreply.github.com>
 */
 package cmd
 
@@ -22,6 +22,7 @@ var addCmd = &cobra.Command{
 	Long: `Define a new profile with the short name <profile-name>. 
 
 You will be asked to provide your credentials and an origin.
+Use flags to provide them directly.
 The origin of your current repository will already be filled in
 and subject to confirm or change.`,
 	Run: addRun,
@@ -29,37 +30,55 @@ and subject to confirm or change.`,
 
 func init() {
 	rootCmd.AddCommand(addCmd)
+	addCmd.Flags().StringVarP(&name, "name", "n", "", "Set the name directly")
+	addCmd.Flags().StringVarP(&email, "email", "e", "", "Set the email directly")
+	addCmd.Flags().StringVarP(&origin, "origin", "o", "", "Set the origin directly."+
+		"Type \"auto\" to accept origin of the current repository")
 }
 
 func addRun(cmd *cobra.Command, args []string) {
 	profileName := args[0]
 	if (models.ProfileConfig{}) != internal.GetProfileByName(profileName) {
 		fmt.Printf("Profile %s already exists\n", profileName)
-		os.Exit(1)
+		return
 	}
 
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Print("Name: ")
-	name, _ := reader.ReadString('\n')
-	name = strings.TrimSpace(name)
+	if name == "" {
+		fmt.Print("Name: ")
+		name, _ = reader.ReadString('\n')
+		name = strings.TrimSpace(name)
+	}
 
-	fmt.Print("E-mail: ")
-	email, _ := reader.ReadString('\n')
-	email = strings.TrimSpace(email)
+	if email == "" {
+		fmt.Print("E-mail: ")
+		email, _ = reader.ReadString('\n')
+		email = strings.TrimSpace(email)
+	}
 
 	fmt.Print("Signing key (enter to skip): ")
 	signingKey, _ := reader.ReadString('\n')
 	signingKey = strings.TrimSpace(signingKey)
 
-	origin, _ := internal.GetRepoOrigin()
-	fmt.Printf("Origin (enter to accept %s): ", origin)
+	currentOrigin, _ := internal.GetRepoOrigin()
+	newOrigin := ""
 
-	newOrigin, _ := reader.ReadString('\n')
-	newOrigin = strings.TrimSpace(origin)
+	if origin == "" {
+		fmt.Printf("Origin (enter to accept %s): ", currentOrigin)
 
-	if newOrigin == "" {
-		newOrigin = origin
+		newOrigin, _ = reader.ReadString('\n')
+		newOrigin = strings.TrimSpace(newOrigin)
+
+		if newOrigin == "" {
+			newOrigin = currentOrigin
+		}
+	} else {
+		if origin == "auto" {
+			newOrigin = currentOrigin
+		} else {
+			newOrigin = origin
+		}
 	}
 
 	newProfile := models.ProfileConfig{
@@ -76,5 +95,5 @@ func addRun(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Added profile: %s\n", profileName)
+	fmt.Printf("Added profile: %s for origin %s\n", profileName, newOrigin)
 }
