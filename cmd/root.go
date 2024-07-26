@@ -20,9 +20,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var version = "1.0.0"
+
 var rootCmd = &cobra.Command{
-	Use:   "git-profile",
-	Short: "Manage and automatically set git user profiles based on the project's origin",
+	Use:     "git-profile",
+	Version: version,
+	Short:   "Manage and automatically set git user profiles based on the project's origin",
 	Long: `git-profile is a simple CLI to manage and automatically set git user profiles based on the project's origin.
 
 Save a profile together with its origin and let git-profile set the attributes next time you clone a new repository.
