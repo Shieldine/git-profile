@@ -1,14 +1,14 @@
 /*
-Copyright © 2024 Shieldine <EMAIL ADDRESS>
+Copyright © 2024 Shieldine <74987363+Shieldine@users.noreply.github.com>
 */
 package cmd
 
 import (
 	"fmt"
-	"github.com/Shieldine/git-profile/internal"
 	"os"
 	"os/exec"
 
+	"github.com/Shieldine/git-profile/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +23,12 @@ var configCmd = &cobra.Command{
 	Long: `Open and edit the config file containing all profiles.
 You can manually type in new profiles by using the following scheme:
 
-TODO
+[[profiles]]
+  profile_name = ""
+  name = ""
+  email = ""
+  signing_key = ""
+  origin = ""
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		editor := editorChoice
