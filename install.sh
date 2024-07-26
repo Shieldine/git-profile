@@ -1,7 +1,7 @@
 #!/bin/bash
 
 REPO="Shieldine/git-profile"
-INSTALL_DIR="$HOME/bin"
+INSTALL_DIR="$HOME/.local/bin"
 
 OS=$(uname -s)
 ARCH=$(uname -m)
@@ -61,12 +61,34 @@ echo "Downloading $ARCHIVE from $URL..."
 curl -L -o /tmp/"$ARCHIVE" "$URL"
 
 # Extract the archive
-echo "Extracting $ARCHIVE..."
+echo "Preparing to extract $ARCHIVE..."
 mkdir -p /tmp/git-profile
+
+if [ $? -ne 0 ]; then
+    echo "error: unable to create temporary download directory $INSTALL_DIR"
+    exit 1
+fi
+
+echo "Extracting $ARCHIVE..."
+
 tar -xzf /tmp/"$ARCHIVE" -C /tmp/git-profile
+if [ $? -ne 0 ]; then
+    echo "error: unable to extract $ARCHIVE"
+    exit 1
+fi
 
 # move to install dir
+mkdir -p "$INSTALL_DIR"
+if [ $? -ne 0 ]; then
+    echo "error: unable to create install dir $INSTALL_DIR"
+    exit 1
+fi
+
 mv /tmp/git-profile/git-profile "$INSTALL_DIR"/git-profile
+if [ $? -ne 0 ]; then
+    echo "error: unable to move to install dir $INSTALL_DIR"
+    exit 1
+fi
 echo "Executable moved to $INSTALL_DIR"
 
 # clean up tmp files
@@ -75,6 +97,10 @@ rm -rf /tmp/git-profile/
 
 # make git-profile executable
 chmod +x "$INSTALL_DIR"/git-profile
+if [ $? -ne 0 ]; then
+    echo "error: unable to make binary executable"
+    exit 1
+fi
 
 # Add install dir to PATH if not already there
 [[ ":$PATH:" != *":$INSTALL_DIR:"* ]] && PATH="$INSTALL_DIR:${PATH}"
