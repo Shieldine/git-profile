@@ -1,5 +1,5 @@
 # git-profile
-Simple git plugin to manage and automatically set git user profiles based on the project's origin.
+Simple CLI to manage and automatically set git user profiles based on the project's origin.
 
 Okay, but why?<br />
 Some developers use their computers for both work-related and private projects.
