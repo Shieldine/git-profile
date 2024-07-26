@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Shieldine <E74987363+Shieldine@users.noreply.github.com>
+Copyright © 2024 Shieldine <74987363+Shieldine@users.noreply.github.com>
 */
 package cmd
 

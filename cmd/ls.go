@@ -50,6 +50,7 @@ Use flags to filter for a specific origin, name or email.
 			for _, profile := range Profiles {
 				if name == "" && email == "" && origin == "" {
 					PrintProfile(profile)
+					continue
 				} else if name != "" && name != profile.Name {
 					continue
 				} else if email != "" && email != profile.Email {
