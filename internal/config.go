@@ -10,7 +10,7 @@ import (
 )
 
 type Config struct {
-	Profiles []models.ProfileConfig `toml:"users"`
+	Profiles []models.ProfileConfig `toml:"profiles"`
 }
 
 var (
