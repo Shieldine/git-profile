@@ -150,10 +150,7 @@ func CredentialsAlreadySet(profile models.ProfileConfig) bool {
 	currentName, _ := internal.GetUserName()
 	currentEmail, _ := internal.GetUserEmail()
 
-	if profile.Name == currentName && profile.Email == currentEmail {
-		return true
-	}
-	return false
+	return profile.Name == currentName && profile.Email == currentEmail
 }
 
 func init() {

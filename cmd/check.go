@@ -31,7 +31,7 @@ func runCheck(*cobra.Command, []string) {
 	name, err := internal.GetUserName()
 
 	if err != nil {
-		fmt.Println("error: not a git repository or username not set")
+		fmt.Printf("error: %v\n", err)
 	} else {
 		fmt.Printf("Current name: %s\n", name)
 	}
@@ -39,7 +39,7 @@ func runCheck(*cobra.Command, []string) {
 	email, err := internal.GetUserEmail()
 
 	if err != nil {
-		fmt.Println("error: not a git repository or email not set")
+		fmt.Printf("error: %v\n", err)
 	} else {
 		fmt.Printf("Current email: %s\n", email)
 	}

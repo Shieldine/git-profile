@@ -19,6 +19,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/Shieldine/git-profile/custom_errors"
 )
 
 func CheckGitRepo() bool {
@@ -94,9 +96,17 @@ func GetUserName() (string, error) {
 		return "", errors.New("not a git repository")
 	}
 	cmd := exec.Command("git", "config", "--get", "--local", "user.name")
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
+
 	if err != nil {
-		return "", err
+		var exitError *exec.ExitError
+
+		ok := errors.As(err, &exitError)
+		if ok && exitError.ExitCode() == 1 && err.Error() == "exit status 1" {
+			return "", &custom_errors.NotSetError{ConfigName: "username"}
+		} else {
+			return "", err
+		}
 	}
 	return strings.TrimSpace(string(output)), nil
 }
@@ -116,9 +126,17 @@ func GetUserEmail() (string, error) {
 		return "", errors.New("not a git repository")
 	}
 	cmd := exec.Command("git", "config", "--get", "--local", "user.email")
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
+
 	if err != nil {
-		return "", err
+		var exitError *exec.ExitError
+
+		ok := errors.As(err, &exitError)
+		if ok && exitError.ExitCode() == 1 && err.Error() == "exit status 1" {
+			return "", &custom_errors.NotSetError{ConfigName: "email"}
+		} else {
+			return "", err
+		}
 	}
 	return strings.TrimSpace(string(output)), nil
 }

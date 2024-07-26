@@ -16,12 +16,15 @@ package cmd
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
+	"github.com/Shieldine/git-profile/custom_errors"
+	"os"
+	"strings"
+
 	"github.com/Shieldine/git-profile/internal"
 	"github.com/Shieldine/git-profile/models"
 	"github.com/spf13/cobra"
-	"os"
-	"strings"
 )
 
 var setCmd = &cobra.Command{
@@ -67,9 +70,13 @@ func runSet(cmd *cobra.Command, args []string) {
 
 	currentName, err := internal.GetUserName()
 	currentEmail, _ := internal.GetUserEmail()
+
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		var notSetErr *custom_errors.NotSetError
+		if !errors.As(err, &notSetErr) {
+			fmt.Println("error: ", err)
+			os.Exit(1)
+		}
 	}
 
 	if profile.Name == currentName && profile.Email == currentEmail {
