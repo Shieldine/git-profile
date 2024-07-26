@@ -42,6 +42,12 @@ If you don't pass them, you will be asked to provide a name, email and signing k
 					os.Exit(1)
 				}
 			}
+		} else {
+			err := internal.SetUserName(name)
+			if err != nil {
+				fmt.Printf("Error setting user name: %s\n", err)
+				os.Exit(1)
+			}
 		}
 
 		if email == "" {
@@ -62,6 +68,12 @@ If you don't pass them, you will be asked to provide a name, email and signing k
 					fmt.Printf("Error setting user email: %s\n", err)
 					os.Exit(1)
 				}
+			}
+		} else {
+			err := internal.SetUserEmail(email)
+			if err != nil {
+				fmt.Printf("Error setting user email: %s\n", err)
+				os.Exit(1)
 			}
 		}
 
