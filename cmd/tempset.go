@@ -28,7 +28,7 @@ var tempSetCmd = &cobra.Command{
 	Short: "Set credentials without defining a profile",
 	Long: `Set git credentials for the current repository without saving them in a profile.
 The credentials can be passed as flags right away.
-If you don't pass them, you will be asked to provide a name, email and signing key (optional).
+If you don't pass them, you will be asked to provide a name and an email.
 `,
 	Run: runTempSet,
 }
