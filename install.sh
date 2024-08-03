@@ -1,7 +1,7 @@
 #!/bin/bash
 
 REPO="Shieldine/git-profile"
-INSTALL_DIR="$HOME/.local/bin/git-profile"
+INSTALL_DIR="$HOME/.local/bin/"
 
 OS=$(uname -s)
 ARCH=$(uname -m)
@@ -59,30 +59,48 @@ URL="https://github.com/$REPO/releases/download/$LATEST_RELEASE/$ARCHIVE"
 # Download the archive
 echo "Downloading $ARCHIVE from $URL..."
 curl -L -o /tmp/"$ARCHIVE" "$URL"
-
 if [ $? -ne 0 ]; then
     echo "error: failed to download $ARCHIVE from $URL"
     exit 1
 fi
 
-echo "Extracting $ARCHIVE to $INSTALL_DIR..."
-
-# create install dir
+# create dirs
+echo "Creating directories..."
 mkdir -p "$INSTALL_DIR"
 if [ $? -ne 0 ]; then
     echo "error: unable to create install dir $INSTALL_DIR"
     exit 1
 fi
+echo "$INSTALL_DIR created."
+
+mkdir -p /tmp/git-profile/
+if [ $? -ne 0 ]; then
+    echo "error: unable to create temporary directory"
+    exit 1
+fi
+echo "Temporary directory created."
 
 # extract archive
-tar -xzf /tmp/"$ARCHIVE" -C "$INSTALL_DIR"
+echo "Extracting $ARCHIVE..."
+tar -xzf /tmp/"$ARCHIVE" -C /tmp/git-profile/
 if [ $? -ne 0 ]; then
     echo "error: unable to extract $ARCHIVE"
     exit 1
 fi
 
-# clean up tmp file
+# move files
+echo "Moving executable..."
+mv /tmp/git-profile/git-profile "$INSTALL_DIR"/git-profile
+if [ $? -ne 0 ]; then
+    echo "error: unable to move executable to $INSTALL_DIR"
+    exit 1
+fi
+echo "Executable moved to $INSTALL_DIR"
+
+
+# clean up tmp files
 rm /tmp/"$ARCHIVE"
+rm -rf /tmp/git-profile
 
 # make git-profile executable
 chmod +x "$INSTALL_DIR"/git-profile

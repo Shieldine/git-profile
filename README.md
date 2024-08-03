@@ -33,7 +33,8 @@ If not, run:
 curl -fsSL https://raw.githubusercontent.com/Shieldine/git-profile/main/install.sh | bash
 ```
 
-The executable is located in `~/.loca/bin/git-profile`
+The executable is located in `~/.local/bin/` <br />
+The config file will be created in `~/.config/git-profile/` on first run.
 
 ### For Windows users:
 

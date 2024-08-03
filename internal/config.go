@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/BurntSushi/toml"
 	"github.com/Shieldine/git-profile/models"
@@ -35,10 +36,28 @@ var (
 func init() {
 	exePath, err := os.Executable()
 	if err != nil {
-		fmt.Println("Error determining executable path:", err)
+		fmt.Println("Error determining executable path: ", err)
 		os.Exit(1)
 	}
-	configPath = filepath.Join(filepath.Dir(exePath), "config.toml")
+
+	if runtime.GOOS == "windows" {
+		configPath = filepath.Join(filepath.Dir(exePath), "config.toml")
+	} else {
+		homeDir, err := os.UserHomeDir()
+
+		if err != nil {
+			fmt.Println("Error determining home directory: ", err)
+			os.Exit(1)
+		}
+
+		configPath = filepath.Join(homeDir, ".config", "git-profile", "config.toml")
+
+		err = os.MkdirAll(filepath.Dir(configPath), os.ModePerm)
+		if err != nil {
+			fmt.Println("Error creating config directory: ", err)
+			os.Exit(1)
+		}
+	}
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		file, err := os.Create(configPath)
@@ -52,7 +71,7 @@ func init() {
 
 	err = LoadConfig()
 	if err != nil {
-		fmt.Println("Error loading config file:", err)
+		fmt.Println("Error loading config file: ", err)
 		os.Exit(1)
 	}
 }
