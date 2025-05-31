@@ -23,28 +23,46 @@ import (
 var checkCmd = &cobra.Command{
 	Use:   "check",
 	Short: "Display the currently set credentials",
-	Long:  `Check what credentials are currently set in the current project.`,
+	Long:  `Check what credentials are currently set in the current project or globally.`,
 	Run:   runCheck,
 }
 
-func runCheck(*cobra.Command, []string) {
-	name, err := internal.GetUserName()
+// runCheck executes the check command logic.
+// It displays the current Git user configuration (name and email).
+// If --global flag is used, it shows the global Git configuration; otherwise, it shows the local repository configuration.
+func runCheck(cmd *cobra.Command, args []string) {
+	global, _ := cmd.Flags().GetBool("global")
 
-	if err != nil {
-		fmt.Printf("error: %v\n", err)
+	var name, email string
+	var nameErr, emailErr error
+
+	if global {
+		name, nameErr = internal.GetGlobalUserName()
+		email, emailErr = internal.GetGlobalUserEmail()
+		fmt.Println("Global Git Configuration:")
+	} else {
+		name, nameErr = internal.GetUserName()
+		email, emailErr = internal.GetUserEmail()
+		fmt.Println("Local Git Configuration:")
+	}
+
+	if nameErr != nil {
+		fmt.Printf("error: %v\n", nameErr)
 	} else {
 		fmt.Printf("Current name: %s\n", name)
 	}
 
-	email, err := internal.GetUserEmail()
-
-	if err != nil {
-		fmt.Printf("error: %v\n", err)
+	if emailErr != nil {
+		fmt.Printf("error: %v\n", emailErr)
 	} else {
 		fmt.Printf("Current email: %s\n", email)
 	}
 }
 
+// init initializes the check command and adds it to the root command.
+// It also defines the --global/-g flag for checking Git configuration globally.
 func init() {
+	checkCmd.Flags().BoolP("global", "g", false, "Check the global credentials instead of the current repository")
+
 	rootCmd.AddCommand(checkCmd)
 }

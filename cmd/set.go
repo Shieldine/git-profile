@@ -27,18 +27,24 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// setCmd represents the set command for changing Git profiles
 var setCmd = &cobra.Command{
 	Use:     "set <profile-name>",
 	Aliases: []string{"s"},
 	Args:    cobra.ExactArgs(1),
-	Short:   "Set profile for current repository",
-	Long:    `Change the current repository's profile to <profile-name>.'`,
+	Short:   "Set profile for current repository or globally",
+	Long:    `Change the current repository's profile to <profile-name>, or set it globally with --global flag.`,
 	Run:     runSet,
 }
 
+// runSet executes the set command logic.
+// It sets the Git user configuration (name and email) based on the specified profile.
+// If --global flag is used, it sets the global Git configuration; otherwise, it sets the local repository configuration.
 func runSet(cmd *cobra.Command, args []string) {
-
 	profileName := args[0]
+
+	global, _ := cmd.Flags().GetBool("global")
+
 	profile := internal.GetProfileByName(profileName)
 
 	if (models.ProfileConfig{}) == profile {
@@ -59,13 +65,19 @@ func runSet(cmd *cobra.Command, args []string) {
 
 	profile = internal.GetProfileByName(profileName)
 
-	currentOrigin, _ := internal.GetRepoOrigin()
+	if !global {
+		currentOrigin, err := internal.GetRepoOrigin()
+		if err != nil {
+			fmt.Printf("Error getting repository origin: %s\n", err)
+			os.Exit(1)
+		}
 
-	if profile.Origin != currentOrigin {
-		fmt.Println("warning: profile origin and repo origin don't match.")
-		fmt.Printf("	Repo origin: %s\n", currentOrigin)
-		fmt.Printf("	Profile origin: %s\n", profile.Origin)
-		fmt.Println()
+		if profile.Origin != currentOrigin {
+			fmt.Println("warning: profile origin and repo origin don't match.")
+			fmt.Printf("	Repo origin: %s\n", currentOrigin)
+			fmt.Printf("	Profile origin: %s\n", profile.Origin)
+			fmt.Println()
+		}
 	}
 
 	currentName, err := internal.GetUserName()
@@ -79,26 +91,33 @@ func runSet(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if profile.Name == currentName && profile.Email == currentEmail {
+	if !global && profile.Name == currentName && profile.Email == currentEmail {
 		fmt.Println("Repository already has correct credentials. Nothing to do.")
 		return
 	}
 
-	err = internal.SetUserName(profile.Name)
+	err = internal.SetUserName(profile.Name, global)
 	if err != nil {
 		fmt.Printf("Error setting user name: %s\n", err)
 		os.Exit(1)
 	}
 
-	err = internal.SetUserEmail(profile.Email)
+	err = internal.SetUserEmail(profile.Email, global)
 	if err != nil {
 		fmt.Printf("Error setting user email: %s\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("Profile %s set for current repository.\n", profileName)
+	if global {
+		fmt.Printf("Profile %s set globally.\n", profileName)
+	} else {
+		fmt.Printf("Profile %s set for current repository.\n", profileName)
+	}
 }
 
+// ReadAnswer prompts the user for a yes/no answer and validates the input.
+// It continues to prompt until a valid answer ('y' or 'n') is provided.
+// Returns the validated answer as a lowercase string.
 func ReadAnswer() string {
 	reader := bufio.NewReader(os.Stdin)
 	answer := ""
@@ -119,6 +138,10 @@ func ReadAnswer() string {
 	return answer
 }
 
+// init initializes the set command and adds it to the root command.
+// It also defines the --global/-g flag for setting Git configuration globally.
 func init() {
+	setCmd.Flags().BoolP("global", "g", false, "Set the profile globally instead of for the current repository")
+
 	rootCmd.AddCommand(setCmd)
 }

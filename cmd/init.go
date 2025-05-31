@@ -69,12 +69,12 @@ func runInit(cmd *cobra.Command, _ []string) {
 			return
 		}
 
-		err = internal.SetUserName(possibleProfiles[0].Name)
+		err = internal.SetUserName(possibleProfiles[0].Name, false)
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		err = internal.SetUserEmail(possibleProfiles[0].Email)
+		err = internal.SetUserEmail(possibleProfiles[0].Email, false)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -87,12 +87,12 @@ func runInit(cmd *cobra.Command, _ []string) {
 			return
 		}
 
-		err = internal.SetUserName(possibleProfiles[0].Name)
+		err = internal.SetUserName(possibleProfiles[0].Name, false)
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		err = internal.SetUserEmail(possibleProfiles[0].Email)
+		err = internal.SetUserEmail(possibleProfiles[0].Email, false)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -132,12 +132,12 @@ func runInit(cmd *cobra.Command, _ []string) {
 			return
 		}
 
-		err = internal.SetUserName(selectedProfile.Name)
+		err = internal.SetUserName(selectedProfile.Name, false)
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		err = internal.SetUserEmail(selectedProfile.Email)
+		err = internal.SetUserEmail(selectedProfile.Email, false)
 		if err != nil {
 			fmt.Println(err)
 		}

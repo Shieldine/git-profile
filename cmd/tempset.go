@@ -30,16 +30,20 @@ var tempSetCmd = &cobra.Command{
 	Use:   "tempset",
 	Short: "Set credentials without defining a profile",
 	Long: `
-Set git credentials for the current repository without saving them in a profile.
+Set git credentials for the current repository or globally without saving them in a profile.
 The credentials can be passed as flags right away.
 If you don't pass them, you will be asked to provide a name and an email.
 `,
 	Run: runTempSet,
 }
 
-func runTempSet(*cobra.Command, []string) {
-
+// runTempSet executes the tempset command logic.
+// It sets Git user configuration (name and email) without creating a profile.
+// If --global flag is used, it sets the global Git configuration; otherwise, it sets the local repository configuration.
+// Credentials can be provided via flags or will be prompted interactively.
+func runTempSet(cmd *cobra.Command, args []string) {
 	reader := bufio.NewReader(os.Stdin)
+	global, _ := cmd.Flags().GetBool("global")
 
 	if name == "" {
 		currentName, err := internal.GetUserName()
@@ -63,14 +67,14 @@ func runTempSet(*cobra.Command, []string) {
 		name = strings.TrimSpace(name)
 
 		if name != "" {
-			err = internal.SetUserName(name)
+			err = internal.SetUserName(name, global)
 			if err != nil {
 				fmt.Printf("Error while setting user name: %s\n", err)
 				os.Exit(1)
 			}
 		}
 	} else {
-		err := internal.SetUserName(name)
+		err := internal.SetUserName(name, global)
 
 		if err != nil {
 			fmt.Printf("Error while setting user name: %s\n", err)
@@ -91,7 +95,7 @@ func runTempSet(*cobra.Command, []string) {
 		}
 
 		if currentEmail != "" {
-			fmt.Printf("Name (enter to keep %s): ", currentEmail)
+			fmt.Printf("Email (enter to keep %s): ", currentEmail)
 		} else {
 			fmt.Print("E-Mail: ")
 		}
@@ -99,25 +103,32 @@ func runTempSet(*cobra.Command, []string) {
 		email = strings.TrimSpace(email)
 
 		if email != "" {
-			err = internal.SetUserEmail(email)
+			err = internal.SetUserEmail(email, global)
 			if err != nil {
 				fmt.Printf("Error while setting user email: %s\n", err)
 				os.Exit(1)
 			}
 		}
 	} else {
-		err := internal.SetUserEmail(email)
+		err := internal.SetUserEmail(email, global)
 		if err != nil {
 			fmt.Printf("Error while setting user email: %s\n", err)
 			os.Exit(1)
 		}
 	}
 
-	fmt.Println("Credentials set successfully")
+	if global {
+		fmt.Println("Global credentials set successfully")
+	} else {
+		fmt.Println("Credentials set successfully")
+	}
 }
 
+// init initializes the tempset command and adds it to the root command.
+// It defines flags for name, email, and global scope configuration.
 func init() {
 	rootCmd.AddCommand(tempSetCmd)
 	tempSetCmd.Flags().StringVarP(&name, "name", "n", "", "Pass the name directly")
 	tempSetCmd.Flags().StringVarP(&email, "email", "e", "", "Pass the email directly")
+	tempSetCmd.Flags().BoolP("global", "g", false, "Set the credentials globally instead of for the current repository")
 }

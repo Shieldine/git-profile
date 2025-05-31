@@ -23,21 +23,30 @@ import (
 var unsetCmd = &cobra.Command{
 	Use:   "unset",
 	Short: "Reset credential config to none",
-	Long: `Resets git attributes for current repository.
-If you do this, git will default to your global config.`,
+	Long: `Resets git attributes for current repository or globally.
+If you unset local config, git will default to your global config.
+If you unset global config, git will have no default credentials.`,
 	Run: runUnset,
 }
 
-func runUnset(*cobra.Command, []string) {
+// runUnset executes the unset command logic.
+// It removes Git user configuration (name and email) from either local repository or global scope.
+// If --global flag is used, it unsets the global Git configuration; otherwise, it unsets the local repository configuration.
+func runUnset(cmd *cobra.Command, args []string) {
+	global, _ := cmd.Flags().GetBool("global")
 
-	fmt.Println("warning: git will default to global credentials without local configuration")
+	if global {
+		fmt.Println("warning: removing global git credentials")
+	} else {
+		fmt.Println("warning: git will default to global credentials without local configuration")
+	}
 
-	err := internal.UnsetUserName()
+	err := internal.UnsetUserName(global)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	err = internal.UnsetUserEmail()
+	err = internal.UnsetUserEmail(global)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -45,6 +54,10 @@ func runUnset(*cobra.Command, []string) {
 	fmt.Println("Process complete.")
 }
 
+// init initializes the unset command and adds it to the root command.
+// It also defines the --global/-g flag for unsetting Git configuration globally.
 func init() {
+	unsetCmd.Flags().BoolP("global", "g", false, "Unset the credentials globally instead of for the current repository")
+
 	rootCmd.AddCommand(unsetCmd)
 }
