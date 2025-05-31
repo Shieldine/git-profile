@@ -58,7 +58,12 @@ func TestCheckGitRepo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(originalDir)
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}(originalDir)
 
 	err = os.Chdir(tempDir)
 	if err != nil {
@@ -79,7 +84,12 @@ func TestGetRepoOrigin(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(originalDir)
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}(originalDir)
 
 	err = os.Chdir(tempDir)
 	if err != nil {
@@ -109,7 +119,12 @@ func TestSetUserNameLocal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(originalDir)
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}(originalDir)
 
 	err = os.Chdir(tempDir)
 	if err != nil {
@@ -164,7 +179,12 @@ func TestUnsetUserNameLocal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(originalDir)
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}(originalDir)
 
 	err = os.Chdir(tempDir)
 	if err != nil {
@@ -212,7 +232,12 @@ func TestGetUserName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(originalDir)
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}(originalDir)
 
 	err = os.Chdir(tempDir)
 	if err != nil {
@@ -264,7 +289,12 @@ func TestSetUserEmailLocal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(originalDir)
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}(originalDir)
 
 	err = os.Chdir(tempDir)
 	if err != nil {
@@ -319,7 +349,12 @@ func TestUnsetUserEmailLocal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(originalDir)
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}(originalDir)
 
 	err = os.Chdir(tempDir)
 	if err != nil {
@@ -367,7 +402,12 @@ func TestGetUserEmail(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(originalDir)
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}(originalDir)
 
 	err = os.Chdir(tempDir)
 	if err != nil {

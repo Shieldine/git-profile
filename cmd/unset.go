@@ -32,7 +32,7 @@ If you unset global config, git will have no default credentials.`,
 // runUnset executes the unset command logic.
 // It removes Git user configuration (name and email) from either local repository or global scope.
 // If --global flag is used, it unsets the global Git configuration; otherwise, it unsets the local repository configuration.
-func runUnset(cmd *cobra.Command, args []string) {
+func runUnset(cmd *cobra.Command, _ []string) {
 	global, _ := cmd.Flags().GetBool("global")
 
 	if global {

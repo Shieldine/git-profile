@@ -30,7 +30,7 @@ var checkCmd = &cobra.Command{
 // runCheck executes the check command logic.
 // It displays the current Git user configuration (name and email).
 // If --global flag is used, it shows the global Git configuration; otherwise, it shows the local repository configuration.
-func runCheck(cmd *cobra.Command, args []string) {
+func runCheck(cmd *cobra.Command, _ []string) {
 	global, _ := cmd.Flags().GetBool("global")
 
 	var name, email string
