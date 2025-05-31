@@ -15,7 +15,7 @@ in a repository, it will automatically pick a profile based on the origin
 and simply set those attributes for you - no need to even remember a profile name!
 
 At the same time, you still get a few little extra commands to have manual control
-over your attributes.
+over your attributes. There are also options to manipulate the global config.
 
 
 ## Installation
@@ -63,7 +63,7 @@ Available Commands:
   init        Automatically set credentials for current repository
   list        List profiles
   rm          Remove existing profiles
-  set         Set profile for current repository
+  set         Set profile for current repository or globally
   tempset     Set credentials without defining a profile
   unset       Reset credential config to none
   update      Update an existing profile
@@ -79,7 +79,7 @@ A few tips for an easy start:
 - Run `git-profile init` in any repository you want to handle credentials in. The CLI will guide you from there on.
 - Other than `init`, the most important commands are: `add`, `list`, `rm` and `update`
 - For some more convenience in handling repositories that you want to play with, take a look at `check`, `set`, `unset` and `tempset`
-
+- `check`, `set`, `unset` and `tempset` also support a `--global` flag to manipulate the global git config
 
 
 ## Development
