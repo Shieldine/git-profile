@@ -80,23 +80,43 @@ func runSet(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	currentName, err := internal.GetUserName()
-	currentEmail, _ := internal.GetUserEmail()
+	var currentName, currentEmail string
+	var nameErr, emailErr error
 
-	if err != nil {
+	if global {
+		currentName, nameErr = internal.GetGlobalUserName()
+		currentEmail, emailErr = internal.GetGlobalUserEmail()
+	} else {
+		currentName, nameErr = internal.GetUserName()
+		currentEmail, emailErr = internal.GetUserEmail()
+	}
+
+	if nameErr != nil {
 		var notSetErr *custom_errors.NotSetError
-		if !errors.As(err, &notSetErr) {
-			fmt.Println("error: ", err)
+		if !errors.As(nameErr, &notSetErr) {
+			fmt.Println("error: ", nameErr)
 			os.Exit(1)
 		}
 	}
 
-	if !global && profile.Name == currentName && profile.Email == currentEmail {
-		fmt.Println("Repository already has correct credentials. Nothing to do.")
+	if emailErr != nil {
+		var notSetErr *custom_errors.NotSetError
+		if !errors.As(emailErr, &notSetErr) {
+			fmt.Println("error: ", emailErr)
+			os.Exit(1)
+		}
+	}
+
+	if profile.Name == currentName && profile.Email == currentEmail {
+		if global {
+			fmt.Println("Global configuration already has correct credentials. Nothing to do.")
+		} else {
+			fmt.Println("Repository already has correct credentials. Nothing to do.")
+		}
 		return
 	}
 
-	err = internal.SetUserName(profile.Name, global)
+	err := internal.SetUserName(profile.Name, global)
 	if err != nil {
 		fmt.Printf("Error setting user name: %s\n", err)
 		os.Exit(1)

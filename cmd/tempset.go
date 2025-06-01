@@ -46,7 +46,14 @@ func runTempSet(cmd *cobra.Command, _ []string) {
 	global, _ := cmd.Flags().GetBool("global")
 
 	if name == "" {
-		currentName, err := internal.GetUserName()
+		var currentName string
+		var err error
+
+		if global {
+			currentName, err = internal.GetGlobalUserName()
+		} else {
+			currentName, err = internal.GetUserName()
+		}
 
 		if err != nil {
 			var notSetErr *custom_errors.NotSetError
@@ -83,7 +90,14 @@ func runTempSet(cmd *cobra.Command, _ []string) {
 	}
 
 	if email == "" {
-		currentEmail, err := internal.GetUserEmail()
+		var currentEmail string
+		var err error
+
+		if global {
+			currentEmail, err = internal.GetGlobalUserEmail()
+		} else {
+			currentEmail, err = internal.GetUserEmail()
+		}
 
 		if err != nil {
 			var notSetErr *custom_errors.NotSetError
