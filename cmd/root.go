@@ -20,7 +20,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "1.2.3"
+var version = "1.2.4"
 
 var rootCmd = &cobra.Command{
 	Use:     "git-profile",

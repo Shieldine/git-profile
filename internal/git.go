@@ -195,7 +195,7 @@ func GetGlobalUserName() (string, error) {
 
 		ok := errors.As(err, &exitError)
 		if ok && exitError.ExitCode() == 1 && err.Error() == "exit status 1" {
-			return "", &custom_errors.NotSetError{ConfigName: "global username"}
+			return "", &custom_errors.NotSetError{ConfigName: "username", Global: true}
 		} else {
 			return "", err
 		}
@@ -215,7 +215,7 @@ func GetGlobalUserEmail() (string, error) {
 
 		ok := errors.As(err, &exitError)
 		if ok && exitError.ExitCode() == 1 && err.Error() == "exit status 1" {
-			return "", &custom_errors.NotSetError{ConfigName: "global email"}
+			return "", &custom_errors.NotSetError{ConfigName: "email", Global: true}
 		} else {
 			return "", err
 		}

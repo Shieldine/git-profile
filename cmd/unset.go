@@ -49,12 +49,12 @@ func runUnset(cmd *cobra.Command, _ []string) {
 
 	err := internal.UnsetUserName(global)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("error: %v\n", err)
 	}
 
 	err = internal.UnsetUserEmail(global)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("error: %v\n\n", err)
 	}
 }
 
