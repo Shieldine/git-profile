@@ -93,18 +93,25 @@ func UnsetUserName(global bool) error {
 		return errors.New("not a git repository")
 	}
 
-	_, err := GetUserName()
-	if err != nil {
-		return errors.New("no local username to unset")
-	}
+	var args []string
+	if !global {
+		_, err := GetUserName()
+		if err != nil {
+			return errors.New("no local username to unset")
+		}
 
-	args := []string{"config", "--unset", "user.name"}
-	if global {
+		args = []string{"config", "--unset", "user.name"}
+	} else {
+		_, err := GetGlobalUserName()
+		if err != nil {
+			return errors.New("no global username to unset")
+		}
+
 		args = []string{"config", "--global", "--unset", "user.name"}
 	}
 
 	cmd := exec.Command("git", args...)
-	_, err = cmd.Output()
+	_, err := cmd.Output()
 	if err != nil {
 		return err
 	}
@@ -224,18 +231,26 @@ func UnsetUserEmail(global bool) error {
 		return errors.New("not a git repository")
 	}
 
-	_, err := GetUserEmail()
-	if err != nil {
-		return errors.New("no local email to unset")
-	}
+	var args []string
 
-	args := []string{"config", "--unset", "user.email"}
-	if global {
+	if !global {
+		_, err := GetUserEmail()
+		if err != nil {
+			return errors.New("no local email to unset")
+		}
+
+		args = []string{"config", "--unset", "user.email"}
+	} else {
+		_, err := GetGlobalUserEmail()
+		if err != nil {
+			return errors.New("no global email to unset")
+		}
+
 		args = []string{"config", "--global", "--unset", "user.email"}
 	}
 
 	cmd := exec.Command("git", args...)
-	_, err = cmd.Output()
+	_, err := cmd.Output()
 	if err != nil {
 		return err
 	}
