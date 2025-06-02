@@ -41,9 +41,14 @@ var setCmd = &cobra.Command{
 // It sets the Git user configuration (name and email) based on the specified profile.
 // If --global flag is used, it sets the global Git configuration; otherwise, it sets the local repository configuration.
 func runSet(cmd *cobra.Command, args []string) {
-	profileName := args[0]
-
 	global, _ := cmd.Flags().GetBool("global")
+
+	if !global && !internal.CheckGitRepo() {
+		fmt.Println("error: not a git repository")
+		os.Exit(1)
+	}
+
+	profileName := args[0]
 
 	profile := internal.GetProfileByName(profileName)
 

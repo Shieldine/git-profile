@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"github.com/Shieldine/git-profile/internal"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var unsetCmd = &cobra.Command{
@@ -38,6 +39,11 @@ func runUnset(cmd *cobra.Command, _ []string) {
 	if global {
 		fmt.Println("warning: removing global git credentials")
 	} else {
+		if !internal.CheckGitRepo() {
+			fmt.Println("error: not a git repository")
+			os.Exit(1)
+		}
+
 		fmt.Println("warning: git will default to global credentials without local configuration")
 	}
 
@@ -50,8 +56,6 @@ func runUnset(cmd *cobra.Command, _ []string) {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	fmt.Println("Process complete.")
 }
 
 // init initializes the unset command and adds it to the root command.

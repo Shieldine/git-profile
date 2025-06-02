@@ -42,8 +42,14 @@ If you don't pass them, you will be asked to provide a name and an email.
 // If --global flag is used, it sets the global Git configuration; otherwise, it sets the local repository configuration.
 // Credentials can be provided via flags or will be prompted interactively.
 func runTempSet(cmd *cobra.Command, _ []string) {
-	reader := bufio.NewReader(os.Stdin)
 	global, _ := cmd.Flags().GetBool("global")
+
+	if !global && !internal.CheckGitRepo() {
+		fmt.Println("error: not a git repository")
+		os.Exit(1)
+	}
+
+	reader := bufio.NewReader(os.Stdin)
 
 	if name == "" {
 		var currentName string

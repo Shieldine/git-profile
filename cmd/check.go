@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"github.com/Shieldine/git-profile/internal"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var checkCmd = &cobra.Command{
@@ -41,6 +42,11 @@ func runCheck(cmd *cobra.Command, _ []string) {
 		email, emailErr = internal.GetGlobalUserEmail()
 		fmt.Println("Global Git Configuration:")
 	} else {
+		if !internal.CheckGitRepo() {
+			fmt.Println("error: not a git repository")
+			os.Exit(1)
+		}
+
 		name, nameErr = internal.GetUserName()
 		email, emailErr = internal.GetUserEmail()
 		fmt.Println("Local Git Configuration:")
