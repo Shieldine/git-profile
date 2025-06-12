@@ -24,11 +24,10 @@ import (
 	"strings"
 )
 
-// Variables to store flag values
 var (
-	name      string
-	email     string
-	origin    string
+	newName   string
+	newEmail  string
+	newOrigin string
 	oldName   string
 	oldEmail  string
 	oldOrigin string
@@ -79,7 +78,6 @@ func runUpdate(_ *cobra.Command, args []string) {
 		}
 
 		// Get new name value
-		newName := name
 		if newName == "" {
 			fmt.Printf("Name (enter to keep %s): ", oldProfile.Name)
 			newName, _ = reader.ReadString('\n')
@@ -91,7 +89,6 @@ func runUpdate(_ *cobra.Command, args []string) {
 		}
 
 		// Get new email value
-		newEmail := email
 		if newEmail == "" {
 			fmt.Printf("E-mail (enter to keep %s): ", oldProfile.Email)
 			newEmail, _ = reader.ReadString('\n')
@@ -104,9 +101,8 @@ func runUpdate(_ *cobra.Command, args []string) {
 
 		// Get new origin value
 		currentOrigin, _ := internal.GetRepoOrigin()
-		newOrigin := origin
 
-		if origin == "" {
+		if newOrigin == "" {
 			fmt.Printf("Origin (enter to keep %s): ", oldProfile.Origin)
 
 			newOrigin, _ = reader.ReadString('\n')
@@ -116,10 +112,10 @@ func runUpdate(_ *cobra.Command, args []string) {
 				newOrigin = oldProfile.Origin
 			}
 		} else {
-			if origin == "auto" {
+			if newOrigin == "auto" {
 				newOrigin = currentOrigin
 			} else {
-				newOrigin = origin
+				newOrigin = newOrigin
 			}
 		}
 
@@ -145,7 +141,7 @@ func runUpdate(_ *cobra.Command, args []string) {
 		return
 	}
 
-	if name == "" && email == "" && origin == "" {
+	if newName == "" && newEmail == "" && newOrigin == "" {
 		fmt.Println("Error: When updating multiple profiles, you must specify at least one new value (--name, --email, or --origin).")
 		return
 	}
@@ -176,18 +172,18 @@ func runUpdate(_ *cobra.Command, args []string) {
 		}
 
 		// Apply updates
-		if name != "" {
-			updatedProfile.Name = name
+		if newName != "" {
+			updatedProfile.Name = newName
 		}
-		if email != "" {
-			updatedProfile.Email = email
+		if newEmail != "" {
+			updatedProfile.Email = newEmail
 		}
-		if origin != "" {
-			if origin == "auto" {
+		if newOrigin != "" {
+			if newOrigin == "auto" {
 				currentOrigin, _ := internal.GetRepoOrigin()
 				updatedProfile.Origin = currentOrigin
 			} else {
-				updatedProfile.Origin = origin
+				updatedProfile.Origin = newOrigin
 			}
 		}
 
@@ -213,9 +209,9 @@ func runUpdate(_ *cobra.Command, args []string) {
 func init() {
 	rootCmd.AddCommand(editCmd)
 
-	editCmd.Flags().StringVarP(&name, "name", "n", "", "Set the new name value")
-	editCmd.Flags().StringVarP(&email, "email", "e", "", "Set the new email value")
-	editCmd.Flags().StringVarP(&origin, "origin", "o", "", "Set the new origin value. Type \"auto\" to use current repository's origin")
+	editCmd.Flags().StringVarP(&newName, "name", "n", "", "Set the new name value")
+	editCmd.Flags().StringVarP(&newEmail, "email", "e", "", "Set the new email value")
+	editCmd.Flags().StringVarP(&newOrigin, "origin", "o", "", "Set the new origin value. Type \"auto\" to use current repository's origin")
 
 	editCmd.Flags().StringVar(&oldName, "old-name", "", "Filter profiles by name")
 	editCmd.Flags().StringVar(&oldEmail, "old-email", "", "Filter profiles by email")
