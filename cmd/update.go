@@ -111,12 +111,8 @@ func runUpdate(_ *cobra.Command, args []string) {
 			if newOrigin == "" {
 				newOrigin = oldProfile.Origin
 			}
-		} else {
-			if newOrigin == "auto" {
-				newOrigin = currentOrigin
-			} else {
-				newOrigin = newOrigin
-			}
+		} else if newOrigin == "auto" {
+			newOrigin = currentOrigin
 		}
 
 		// Update the profile
