@@ -24,25 +24,46 @@ import (
 
 var all bool
 
+// rmCmd represents the remove command for deleting git profiles
 var rmCmd = &cobra.Command{
 	Use:   "rm [profile-name]",
 	Short: "Remove existing profiles",
 	Args:  cobra.MaximumNArgs(1),
-	Long: `Provide <profile-name> to remove only the profile called <profile-name>.
+	Long: `Remove one or multiple profiles from the configuration.
 
 Use --all flag to remove all profiles.
 Use other flags to remove all profiles containing a specific name, email or origin.
 
+Provide <profile-name> to remove only the profile called <profile-name>.
 <profile-name> and filtering flags cannot be provided together.
 
 This action cannot be undone.
+
+Examples:
+  # Remove a specific profile
+  git-profile rm myprofile
+
+  # Remove all profiles
+  git-profile rm --all
+
+  # Remove all profiles with a specific email
+  git-profile rm --email user@example.com
+
+  # Remove all profiles with a specific name
+  git-profile rm --name "John Doe"
+
+  # Remove all profiles with a specific origin
+  git-profile rm --origin github.com
 `,
 	Run: runRm,
 }
 
+// runRm handles the remove command execution.
+// It supports three modes of operation:
+// 1. Remove all profiles (--all flag)
+// 2. Remove a specific profile by name (argument)
+// 3. Remove profiles matching filter criteria (--name, --email, --origin flags)
 func runRm(_ *cobra.Command, args []string) {
-	fmt.Println("Initialising profile removal...")
-
 	if all {
 		err := internal.ClearConfig()
 		if err != nil {

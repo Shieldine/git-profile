@@ -21,11 +21,23 @@ import (
 	"os"
 )
 
+// checkCmd represents the check command for displaying current git credentials
 var checkCmd = &cobra.Command{
 	Use:   "check",
-	Short: "Display the currently set credentials",
-	Long:  `Check what credentials are currently set in the current project or globally.`,
-	Run:   runCheck,
+	Short: "Display the currently set attributes",
+	Long: `Check what attributes are currently set in the current project or globally.
+
+This command displays the name and email currently configured in git.
+Use the --global flag to check the global git configuration instead of the local repository configuration.
+
+Examples:
+  # Check local repository attributes
+  git-profile check
+
+  # Check global attributes
+  git-profile check --global
+`,
+	Run: runCheck,
 }
 
 // runCheck executes the check command logic.
@@ -65,8 +77,6 @@ func runCheck(cmd *cobra.Command, _ []string) {
 	}
 }
 
-// init initializes the check command and adds it to the root command.
-// It also defines the --global/-g flag for checking Git configuration globally.
 func init() {
 	checkCmd.Flags().BoolP("global", "g", false, "Check the global credentials instead of the current repository")
 

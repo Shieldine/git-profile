@@ -21,12 +21,21 @@ import (
 	"os"
 )
 
+// unsetCmd represents the unset command for removing Git attributes
 var unsetCmd = &cobra.Command{
 	Use:   "unset",
-	Short: "Reset credential config to none",
+	Short: "Reset attribute config to none",
 	Long: `Resets git attributes for current repository or globally.
 If you unset local config, git will default to your global config.
-If you unset global config, git will have no default credentials.`,
+If you unset global config, git will have no default credentials.
+
+Examples:
+  # Unset local repository attributes
+  git-profile unset
+
+  # Unset global attributes
+  git-profile unset --global
+`,
 	Run: runUnset,
 }
 
@@ -58,8 +67,6 @@ func runUnset(cmd *cobra.Command, _ []string) {
 	}
 }
 
-// init initializes the unset command and adds it to the root command.
-// It also defines the --global/-g flag for unsetting Git configuration globally.
 func init() {
 	unsetCmd.Flags().BoolP("global", "g", false, "Unset the credentials globally instead of for the current repository")
 

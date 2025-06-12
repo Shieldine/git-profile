@@ -27,19 +27,30 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// setCmd represents the set command for changing Git profiles
+// setCmd represents the set command for changing git profiles
 var setCmd = &cobra.Command{
 	Use:     "set <profile-name>",
 	Aliases: []string{"s"},
 	Args:    cobra.ExactArgs(1),
 	Short:   "Set profile for current repository or globally",
-	Long:    `Change the current repository's profile to <profile-name>, or set it globally with --global flag.`,
-	Run:     runSet,
+	Long: `Change the current repository's profile to <profile-name>, or set it globally with --global flag.
+
+This command will apply the name and email from the specified profile to your git configuration.
+If the profile doesn't exist, you'll be prompted to create it.
+
+Examples:
+  # Set a profile for the current repository
+  git-profile set work
+
+  # Set a profile globally
+  git-profile set personal --global
+`,
+	Run: runSet,
 }
 
 // runSet executes the set command logic.
-// It sets the Git user configuration (name and email) based on the specified profile.
-// If --global flag is used, it sets the global Git configuration; otherwise, it sets the local repository configuration.
+// It sets the git user configuration (name and email) based on the specified profile.
+// If --global flag is used, it sets the global git configuration; otherwise, it sets the local repository configuration.
 func runSet(cmd *cobra.Command, args []string) {
 	global, _ := cmd.Flags().GetBool("global")
 
@@ -163,8 +174,6 @@ func ReadAnswer() string {
 	return answer
 }
 
-// init initializes the set command and adds it to the root command.
-// It also defines the --global/-g flag for setting Git configuration globally.
 func init() {
 	setCmd.Flags().BoolP("global", "g", false, "Set the profile globally instead of for the current repository")
 

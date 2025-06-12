@@ -22,12 +22,13 @@ import (
 )
 
 var (
-	profileName = ""
+	profileName string
 	name        string
 	email       string
 	origin      string
 )
 
+// lsCmd represents the list command for displaying git profiles
 var lsCmd = &cobra.Command{
 	Use:     "list [profile-name]",
 	Aliases: []string{"l", "ls"},
@@ -37,10 +38,30 @@ var lsCmd = &cobra.Command{
 
 Provide a profile name to list the attributes of the specified profile.
 Use flags to filter for a specific origin, name or email.
+
+Examples:
+  # List all profiles
+  git-profile list
+
+  # Show details of a specific profile
+  git-profile list myprofile
+
+  # List all profiles with a specific email
+  git-profile list --email user@example.com
+
+  # List all profiles with a specific name
+  git-profile list --name "John Doe"
+
+  # List all profiles with a specific origin
+  git-profile list --origin github.com
 `,
 	Run: runLs,
 }
 
+// runLs handles the list command execution.
+// It supports two modes of operation:
+// 1. Display a specific profile by name (when an argument is provided)
+// 2. List all profiles, optionally filtered by name, email, or origin
 func runLs(_ *cobra.Command, args []string) {
 	if len(args) != 0 {
 		profileName = args[0]
@@ -77,6 +98,8 @@ func runLs(_ *cobra.Command, args []string) {
 	}
 }
 
+// PrintProfile formats and prints the details of a Git profile.
+// It displays the profile name, origin, name, and email in a readable format.
 func PrintProfile(profile models.ProfileConfig) {
 	fmt.Printf("Profile %s:\n", profile.ProfileName)
 	fmt.Printf("  Origin: %s\n", profile.Origin)

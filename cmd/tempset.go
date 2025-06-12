@@ -26,21 +26,31 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// tempSetCmd represents the tempset command for setting temporary git attributes
 var tempSetCmd = &cobra.Command{
 	Use:   "tempset",
-	Short: "Set credentials without defining a profile",
+	Short: "Set attributes without defining a profile",
 	Long: `
-Set git credentials for the current repository or globally without saving them in a profile.
-The credentials can be passed as flags right away.
+Set git attributes for the current repository or globally without saving them in a profile.
+The attributes can be passed as flags right away.
 If you don't pass them, you will be asked to provide a name and an email.
-`,
+
+Examples:
+  # Set temporary attributes interactively
+  git-profile tempset
+
+  # Set temporary attributes with flags
+  git-profile tempset --name "John Doe" --email "john@example.com"
+
+  # Set temporary global attributes
+  git-profile tempset --global --name "John Doe" --email "john@example.com"`,
 	Run: runTempSet,
 }
 
 // runTempSet executes the tempset command logic.
 // It sets Git user configuration (name and email) without creating a profile.
 // If --global flag is used, it sets the global Git configuration; otherwise, it sets the local repository configuration.
-// Credentials can be provided via flags or will be prompted interactively.
+// Attributes can be provided via flags or will be prompted interactively.
 func runTempSet(cmd *cobra.Command, _ []string) {
 	global, _ := cmd.Flags().GetBool("global")
 
@@ -144,8 +154,6 @@ func runTempSet(cmd *cobra.Command, _ []string) {
 	}
 }
 
-// init initializes the tempset command and adds it to the root command.
-// It defines flags for name, email, and global scope configuration.
 func init() {
 	rootCmd.AddCommand(tempSetCmd)
 	tempSetCmd.Flags().StringVarP(&name, "name", "n", "", "Pass the name directly")

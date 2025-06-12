@@ -63,7 +63,13 @@ Examples:
 	Run: runUpdate,
 }
 
-// runUpdate handles the update command execution
+// runUpdate handles the update command execution.
+// It supports two modes of operation:
+// 1. Single profile update: When a profile name is provided as an argument
+// 2. Batch update: When no profile name is provided, but filter criteria are specified
+//
+// In single profile mode, the user can update a profile interactively or using flags.
+// In batch mode, the command updates all profiles matching the filter criteria.
 func runUpdate(_ *cobra.Command, args []string) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -77,7 +83,6 @@ func runUpdate(_ *cobra.Command, args []string) {
 			return
 		}
 
-		// Get new name value
 		if newName == "" {
 			fmt.Printf("Name (enter to keep %s): ", oldProfile.Name)
 			newName, _ = reader.ReadString('\n')
@@ -88,7 +93,6 @@ func runUpdate(_ *cobra.Command, args []string) {
 			}
 		}
 
-		// Get new email value
 		if newEmail == "" {
 			fmt.Printf("E-mail (enter to keep %s): ", oldProfile.Email)
 			newEmail, _ = reader.ReadString('\n')
@@ -99,7 +103,6 @@ func runUpdate(_ *cobra.Command, args []string) {
 			}
 		}
 
-		// Get new origin value
 		currentOrigin, _ := internal.GetRepoOrigin()
 
 		if newOrigin == "" {
@@ -115,7 +118,6 @@ func runUpdate(_ *cobra.Command, args []string) {
 			newOrigin = currentOrigin
 		}
 
-		// Update the profile
 		err := internal.EditProfile(profileName, models.ProfileConfig{
 			ProfileName: profileName,
 			Name:        newName,
@@ -152,14 +154,13 @@ func runUpdate(_ *cobra.Command, args []string) {
 	// Filter and update profiles
 	updatedCount := 0
 	for _, profile := range profiles {
-		// Check if profile matches filter criteria
+
 		if (oldName != "" && profile.Name != oldName) ||
 			(oldEmail != "" && profile.Email != oldEmail) ||
 			(oldOrigin != "" && profile.Origin != oldOrigin) {
 			continue
 		}
 
-		// Create updated profile
 		updatedProfile := models.ProfileConfig{
 			ProfileName: profile.ProfileName,
 			Name:        profile.Name,
@@ -167,7 +168,6 @@ func runUpdate(_ *cobra.Command, args []string) {
 			Origin:      profile.Origin,
 		}
 
-		// Apply updates
 		if newName != "" {
 			updatedProfile.Name = newName
 		}
@@ -183,7 +183,6 @@ func runUpdate(_ *cobra.Command, args []string) {
 			}
 		}
 
-		// Update the profile
 		err := internal.EditProfile(profile.ProfileName, updatedProfile)
 		if err != nil {
 			fmt.Printf("Error updating profile %s: %v\n", profile.ProfileName, err)
@@ -201,7 +200,6 @@ func runUpdate(_ *cobra.Command, args []string) {
 	}
 }
 
-// init initializes the update command and its flags
 func init() {
 	rootCmd.AddCommand(editCmd)
 

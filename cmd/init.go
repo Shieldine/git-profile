@@ -24,21 +24,33 @@ import (
 	"strings"
 )
 
+// initCmd represents the init command for automatically setting git attributes
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "Automatically set credentials for current repository",
-	Long: `Automatically set credentials for the current repository.
-The credentials will be chosen by the repository's origin.
+	Short: "Automatically set attributes for current repository",
+	Long: `Automatically set attributes for the current repository.
+The attributes will be chosen by the repository's origin.
 
 If no profile with a matching origin is present, you will be asked to 
 add one.
 
 If multiple profiles with a matching origin are present, 
 you will be asked to pick one.
+
+Usage:
+  git-profile init
 `,
 	Run: runInit,
 }
 
+// runInit handles the init command execution.
+// It automatically sets Git credentials based on the repository's origin.
+// The function follows these steps:
+// 1. Get the current repository's origin
+// 2. Find profiles matching that origin
+// 3. If no matching profiles, prompt to create one
+// 4. If one matching profile, use it
+// 5. If multiple matching profiles, ask user to select one
 func runInit(cmd *cobra.Command, _ []string) {
 	currentOrigin, err := internal.GetRepoOrigin()
 
@@ -146,6 +158,8 @@ func runInit(cmd *cobra.Command, _ []string) {
 	}
 }
 
+// CredentialsAlreadySet checks if the current repository already has the same credentials as the given profile.
+// Returns true if both name and email match, false otherwise.
 func CredentialsAlreadySet(profile models.ProfileConfig) bool {
 	currentName, _ := internal.GetUserName()
 	currentEmail, _ := internal.GetUserEmail()

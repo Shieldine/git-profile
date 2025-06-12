@@ -34,13 +34,30 @@ var addCmd = &cobra.Command{
 Passing the profile name as an arg is optional. If not provided, you will
 be asked to provide one.
 
-You will be asked to provide your credentials and an origin.
+You will be asked to provide your attributes and an origin.
 Use flags to provide them directly.
 The origin of your current repository will already be filled in
-and subject to confirm or change.`,
+and subject to confirm or change.
+
+Examples:
+  # Add a profile interactively
+  git-profile add
+
+  # Add a profile with a specific name
+  git-profile add myprofile
+
+  # Add a profile with flags
+  git-profile add myprofile --name "John Doe" --email "john@example.com" --origin "github.com"
+
+  # Add a profile with auto-detected origin
+  git-profile add myprofile --name "John Doe" --email "john@example.com" --origin auto
+`,
 	Run: runAdd,
 }
 
+// runAdd handles the add command execution.
+// It creates a new git profile with the specified name, email, and origin.
+// If values are not provided via flags, it prompts the user for input.
 func runAdd(_ *cobra.Command, args []string) {
 	reader := bufio.NewReader(os.Stdin)
 

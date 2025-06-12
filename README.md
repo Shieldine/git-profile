@@ -1,7 +1,7 @@
 # git-profile
-Simple CLI to manage and automatically set git user profiles based on the project's origin.
+A simple CLI to manage and automatically set git user profiles.
 
-Okay, but why?<br />
+## Why git-profile?
 Some developers use their computers for both work-related and private projects.
 This usually involves having *at least* two different sets of credentials
 for git. If your private project and/or work involve multiple platforms to keep
@@ -49,7 +49,8 @@ powershell -c "irm https://raw.githubusercontent.com/Shieldine/git-profile/main/
 The executable is located in `\AppData\Local\Programs\git-profile`
 
 ## Getting started
-```
+
+```bash
 $ git-profile
 Usage:
   git-profile [command]
@@ -75,8 +76,47 @@ Flags:
 Use "git-profile [command] --help" for more information about a command.
 ```
 
-A few tips for an easy start:
-- Run `git-profile init` in any repository you want to handle credentials in. The CLI will guide you from there on.
+### Common Workflows
+
+#### Setting up profiles
+1. **Create a new profile**:
+   ```bash
+   git-profile add work --name "John Doe" --email "john@company.com" --origin github.com
+   ```
+
+2. **List your profiles**:
+   ```bash
+   git-profile list
+   ```
+
+3. **Update an existing profile**:
+   ```bash
+   git-profile update work --email "new.email@company.com"
+   ```
+
+#### Using profiles in repositories
+1. **Automatically set attributes based on repository origin**:
+   ```bash
+   git-profile init
+   ```
+
+2. **Manually set a specific profile**:
+   ```bash
+   git-profile set personal
+   ```
+
+3. **Check current attributes**:
+   ```bash
+   git-profile check
+   ```
+
+4. **Set temporary attributes without creating a profile**:
+   ```bash
+   git-profile tempset --name "Temp Name" --email "temp@example.com"
+   ```
+
+### Tips
+- Run `git-profile init` in any repository you want to handle attributes in. The CLI will guide you from there on.
 - Other than `init`, the most important commands are: `add`, `list`, `rm` and `update`
 - For some more convenience in handling repositories that you want to play with, take a look at `check`, `set`, `unset` and `tempset`
 - `check`, `set`, `unset` and `tempset` also support a `--global` flag to manipulate the global git config

@@ -20,17 +20,29 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// version represents the current version of the git-profile tool
 var version = "1.2.4"
 
+// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:     "git-profile",
 	Version: version,
-	Short:   "Manage and automatically set git user profiles based on the project's origin",
+	Short:   "Manage and automatically set git user profiles",
 	Long: `git-profile is a simple CLI to manage and automatically set git user profiles based on the project's origin.
 
 Save a profile together with its origin and let git-profile set the attributes next time you clone a new repository.
 To make managing names and emails more convenient in general, git-profile offers further commands that will let you
-check, unset and set credentials without creating a profile.
+check, unset and set credentials without creating a profile. You also get the option to do these things globally.
+
+Common commands:
+  git-profile init      - Automatically set credentials based on repository origin
+  git-profile add       - Add a new profile
+  git-profile list      - List all profiles
+  git-profile update    - Update one or multiple existing profiles
+  git-profile rm        - Remove a profile
+  git-profile set       - Manually set a profile
+  git-profile unset     - Unset git config
+  git-profile check     - Check current credentials
 `,
 }
 
@@ -39,7 +51,4 @@ func Execute() {
 	if err != nil {
 		os.Exit(1)
 	}
-}
-
-func init() {
 }

@@ -27,6 +27,7 @@ var (
 	editorChoice string
 )
 
+// configCmd represents the config command for editing the profile configuration file
 var configCmd = &cobra.Command{
 	Use:     "config",
 	Aliases: []string{"c"},
@@ -39,10 +40,23 @@ You can manually type in new profiles by using the following scheme:
   name = ""
   email = ""
   origin = ""
+
+Examples:
+  # Edit config with default editor (vim)
+  git-profile config
+
+  # Edit config with a specific editor
+  git-profile config --editor nano
+
+  # Edit config with VS Code
+  git-profile config --editor code
 `,
 	Run: runConfig,
 }
 
+// runConfig handles the config command execution.
+// It opens the configuration file in the specified editor (or vim by default).
+// The function sets up the editor command and handles any errors that occur.
 func runConfig(*cobra.Command, []string) {
 	editor := editorChoice
 	if editor == "" {
