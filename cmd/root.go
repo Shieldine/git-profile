@@ -33,16 +33,6 @@ var rootCmd = &cobra.Command{
 Save a profile together with its origin and let git-profile set the attributes next time you clone a new repository.
 To make managing names and emails more convenient in general, git-profile offers further commands that will let you
 check, unset and set credentials without creating a profile. You also get the option to do these things globally.
-
-Common commands:
-  git-profile init      - Automatically set credentials based on repository origin
-  git-profile add       - Add a new profile
-  git-profile list      - List all profiles
-  git-profile update    - Update one or multiple existing profiles
-  git-profile rm        - Remove a profile
-  git-profile set       - Manually set a profile
-  git-profile unset     - Unset git config
-  git-profile check     - Check current credentials
 `,
 }
 
