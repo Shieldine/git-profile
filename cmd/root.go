@@ -21,7 +21,7 @@ import (
 )
 
 // version represents the current version of the git-profile tool
-var version = "1.2.4"
+var version = "1.3.0"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{

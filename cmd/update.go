@@ -194,7 +194,7 @@ func runUpdate(_ *cobra.Command, args []string) {
 	}
 
 	if updatedCount > 0 {
-		fmt.Printf("\nSuccessfully updated %d profiles.\n", updatedCount)
+		fmt.Printf("\nSuccessfully updated %d profile(s).\n", updatedCount)
 	} else {
 		fmt.Println("No profiles matched the filter criteria.")
 	}
