@@ -103,8 +103,6 @@ func runUpdate(_ *cobra.Command, args []string) {
 			}
 		}
 
-		currentOrigin, _ := internal.GetRepoOrigin()
-
 		if newOrigin == "" {
 			fmt.Printf("Origin (enter to keep %s): ", oldProfile.Origin)
 
@@ -115,6 +113,13 @@ func runUpdate(_ *cobra.Command, args []string) {
 				newOrigin = oldProfile.Origin
 			}
 		} else if newOrigin == "auto" {
+			currentOrigin, err := internal.GetRepoOrigin()
+
+			if err != nil {
+				fmt.Printf("Error: %s", err)
+				os.Exit(1)
+			}
+
 			newOrigin = currentOrigin
 		}
 
@@ -176,7 +181,13 @@ func runUpdate(_ *cobra.Command, args []string) {
 		}
 		if newOrigin != "" {
 			if newOrigin == "auto" {
-				currentOrigin, _ := internal.GetRepoOrigin()
+				currentOrigin, err := internal.GetRepoOrigin()
+
+				if err != nil {
+					fmt.Printf("Error: %v", err)
+					os.Exit(1)
+				}
+
 				updatedProfile.Origin = currentOrigin
 			} else {
 				updatedProfile.Origin = newOrigin
