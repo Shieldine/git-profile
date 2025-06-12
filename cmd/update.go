@@ -1,4 +1,4 @@
-// Package cmd
+// Package cmd provides command-line functionality for git-profile
 // Copyright © 2024 Shieldine
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,88 +24,200 @@ import (
 	"strings"
 )
 
+// Variables to store flag values
+var (
+	name      string
+	email     string
+	origin    string
+	oldName   string
+	oldEmail  string
+	oldOrigin string
+)
+
+// editCmd represents the update command
 var editCmd = &cobra.Command{
-	Use:     "update <profile-name>",
+	Use:     "update [profile-name]",
 	Aliases: []string{"edit", "u", "e"},
-	Args:    cobra.ExactArgs(1),
-	Short:   "Update an existing profile",
-	Long: `Update the profile <profile-name>.
-You will be asked to update your credentials and origin.
-The updated values can be passed as flags.
+	Args:    cobra.MaximumNArgs(1),
+	Short:   "Update one or multiple profiles",
+	Long: `Update profiles based on provided criteria.
+
+When a profile name is provided, updates only that specific profile.
+Without a profile name, updates all profiles matching the filter criteria.
+
+Examples:
+  # Update a specific profile interactively
+  git-profile update myprofile
+
+  # Update a specific profile with flags
+  git-profile update myprofile --name "New Name" --email "new@example.com"
+
+  # Update all profiles with a specific email
+  git-profile update --old-email old@example.com --email new@example.com
+
+  # Update all profiles with a specific name
+  git-profile update --old-name "Old Name" --name "New Name"
+
+  # Update all profiles with a specific origin
+  git-profile update --old-origin github.com --origin gitlab.com
 `,
 	Run: runUpdate,
 }
 
+// runUpdate handles the update command execution
 func runUpdate(_ *cobra.Command, args []string) {
 	reader := bufio.NewReader(os.Stdin)
-	profileName := args[0]
 
-	oldProfile := internal.GetProfileByName(profileName)
+	// Single profile update
+	if len(args) == 1 {
+		profileName := args[0]
+		oldProfile := internal.GetProfileByName(profileName)
 
-	if (models.ProfileConfig{}) == oldProfile {
-		fmt.Printf("Profile %s doesn't exist.\n", profileName)
-		return
-	}
-
-	if name == "" {
-
-		fmt.Printf("Name (enter to keep %s): ", oldProfile.Name)
-		name, _ = reader.ReadString('\n')
-		name = strings.TrimSpace(name)
-
-		if name == "" {
-			name = oldProfile.Name
+		if (models.ProfileConfig{}) == oldProfile {
+			fmt.Printf("Profile %s doesn't exist.\n", profileName)
+			return
 		}
-	}
 
-	if email == "" {
-		fmt.Printf("E-mail (enter to keep %s): ", oldProfile.Email)
-		email, _ = reader.ReadString('\n')
-		email = strings.TrimSpace(email)
+		// Get new name value
+		newName := name
+		if newName == "" {
+			fmt.Printf("Name (enter to keep %s): ", oldProfile.Name)
+			newName, _ = reader.ReadString('\n')
+			newName = strings.TrimSpace(newName)
 
-		if email == "" {
-			email = oldProfile.Email
+			if newName == "" {
+				newName = oldProfile.Name
+			}
 		}
-	}
 
-	currentOrigin, _ := internal.GetRepoOrigin()
-	newOrigin := ""
+		// Get new email value
+		newEmail := email
+		if newEmail == "" {
+			fmt.Printf("E-mail (enter to keep %s): ", oldProfile.Email)
+			newEmail, _ = reader.ReadString('\n')
+			newEmail = strings.TrimSpace(newEmail)
 
-	if origin == "" {
-		fmt.Printf("Origin (enter to keep %s): ", oldProfile.Origin)
-
-		newOrigin, _ = reader.ReadString('\n')
-		newOrigin = strings.TrimSpace(newOrigin)
-
-		if newOrigin == "" {
-			newOrigin = oldProfile.Origin
+			if newEmail == "" {
+				newEmail = oldProfile.Email
+			}
 		}
-	} else {
-		if origin == "auto" {
-			newOrigin = currentOrigin
+
+		// Get new origin value
+		currentOrigin, _ := internal.GetRepoOrigin()
+		newOrigin := origin
+
+		if origin == "" {
+			fmt.Printf("Origin (enter to keep %s): ", oldProfile.Origin)
+
+			newOrigin, _ = reader.ReadString('\n')
+			newOrigin = strings.TrimSpace(newOrigin)
+
+			if newOrigin == "" {
+				newOrigin = oldProfile.Origin
+			}
 		} else {
-			newOrigin = origin
+			if origin == "auto" {
+				newOrigin = currentOrigin
+			} else {
+				newOrigin = origin
+			}
 		}
-	}
 
-	err := internal.EditProfile(args[0], models.ProfileConfig{
-		ProfileName: profileName,
-		Name:        name,
-		Email:       email,
-		Origin:      newOrigin,
-	})
-	if err != nil {
-		fmt.Printf("Error updating profile: %v\n", err)
+		// Update the profile
+		err := internal.EditProfile(profileName, models.ProfileConfig{
+			ProfileName: profileName,
+			Name:        newName,
+			Email:       newEmail,
+			Origin:      newOrigin,
+		})
+		if err != nil {
+			fmt.Printf("Error updating profile: %v\n", err)
+			return
+		}
+
+		fmt.Printf("Profile %s updated\n", profileName)
 		return
 	}
 
-	fmt.Printf("Profile %s updated\n", profileName)
+	// Batch update
+	if oldName == "" && oldEmail == "" && oldOrigin == "" {
+		fmt.Println("Error: When updating multiple profiles, you must specify at least one filter criteria (--old-name, --old-email, or --old-origin).")
+		return
+	}
+
+	if name == "" && email == "" && origin == "" {
+		fmt.Println("Error: When updating multiple profiles, you must specify at least one new value (--name, --email, or --origin).")
+		return
+	}
+
+	// Get all profiles
+	profiles := internal.GetAllProfiles()
+	if len(profiles) == 0 {
+		fmt.Println("No profiles to update.")
+		return
+	}
+
+	// Filter and update profiles
+	updatedCount := 0
+	for _, profile := range profiles {
+		// Check if profile matches filter criteria
+		if (oldName != "" && profile.Name != oldName) ||
+			(oldEmail != "" && profile.Email != oldEmail) ||
+			(oldOrigin != "" && profile.Origin != oldOrigin) {
+			continue
+		}
+
+		// Create updated profile
+		updatedProfile := models.ProfileConfig{
+			ProfileName: profile.ProfileName,
+			Name:        profile.Name,
+			Email:       profile.Email,
+			Origin:      profile.Origin,
+		}
+
+		// Apply updates
+		if name != "" {
+			updatedProfile.Name = name
+		}
+		if email != "" {
+			updatedProfile.Email = email
+		}
+		if origin != "" {
+			if origin == "auto" {
+				currentOrigin, _ := internal.GetRepoOrigin()
+				updatedProfile.Origin = currentOrigin
+			} else {
+				updatedProfile.Origin = origin
+			}
+		}
+
+		// Update the profile
+		err := internal.EditProfile(profile.ProfileName, updatedProfile)
+		if err != nil {
+			fmt.Printf("Error updating profile %s: %v\n", profile.ProfileName, err)
+			continue
+		}
+
+		fmt.Printf("Profile %s updated\n", profile.ProfileName)
+		updatedCount++
+	}
+
+	if updatedCount > 0 {
+		fmt.Printf("\nSuccessfully updated %d profiles.\n", updatedCount)
+	} else {
+		fmt.Println("No profiles matched the filter criteria.")
+	}
 }
 
+// init initializes the update command and its flags
 func init() {
 	rootCmd.AddCommand(editCmd)
-	editCmd.Flags().StringVarP(&name, "name", "n", "", "Set the name directly")
-	editCmd.Flags().StringVarP(&email, "email", "e", "", "Set the email directly")
-	editCmd.Flags().StringVarP(&origin, "origin", "o", "", "Set the origin directly."+
-		" Type \"auto\" to accept origin of the current repository")
+
+	editCmd.Flags().StringVarP(&name, "name", "n", "", "Set the new name value")
+	editCmd.Flags().StringVarP(&email, "email", "e", "", "Set the new email value")
+	editCmd.Flags().StringVarP(&origin, "origin", "o", "", "Set the new origin value. Type \"auto\" to use current repository's origin")
+
+	editCmd.Flags().StringVar(&oldName, "old-name", "", "Filter profiles by name")
+	editCmd.Flags().StringVar(&oldEmail, "old-email", "", "Filter profiles by email")
+	editCmd.Flags().StringVar(&oldOrigin, "old-origin", "", "Filter profiles by origin")
 }
