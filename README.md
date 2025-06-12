@@ -57,17 +57,17 @@ Usage:
 
 Available Commands:
   add         Add a new profile
-  check       Display the currently set credentials
+  check       Display the currently set attributes
   completion  Generate the autocompletion script for the specified shell
   config      Edit profile configuration file
   help        Help about any command
-  init        Automatically set credentials for current repository
+  init        Automatically set attributes for current repository
   list        List profiles
   rm          Remove existing profiles
   set         Set profile for current repository or globally
-  tempset     Set credentials without defining a profile
-  unset       Reset credential config to none
-  update      Update an existing profile
+  tempset     Set attributes without defining a profile
+  unset       Reset attribute config to none
+  update      Update one or multiple profiles
 
 Flags:
   -h, --help      help for git-profile
