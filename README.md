@@ -22,6 +22,13 @@ over your attributes. There are also options to manipulate the global config.
 There are two installation scripts included in this repository: one for UNIX-based systems and one for Windows users.
 Both scripts automatically add the executable to PATH if requested.
 
+Additionally, git-profile is available as a homebrew tap. If you are a macOS user and have homebrew installed, run the following:
+
+```shell
+brew tap Shieldine/tools
+brew install git-profile
+```
+
 ### For Linux/MacOS users:
 
 If you have cloned the repository, simply run:
