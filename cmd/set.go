@@ -88,7 +88,9 @@ func runSet(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		}
 
-		if profile.Origin != currentOrigin {
+		if currentOrigin == "" {
+			fmt.Println("info: no remote origin configured for this repository.")
+		} else if profile.Origin != currentOrigin {
 			fmt.Println("warning: profile origin and repo origin don't match.")
 			fmt.Printf("	Repo origin: %s\n", currentOrigin)
 			fmt.Printf("	Profile origin: %s\n", profile.Origin)

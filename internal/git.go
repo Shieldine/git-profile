@@ -35,7 +35,8 @@ func CheckGitRepo() bool {
 
 // GetRepoOrigin retrieves the origin URL of the Git repository and extracts the hostname.
 // Returns the hostname (e.g., "github.com") from the remote origin URL.
-// Returns an error if not in a Git repository or if the origin URL cannot be retrieved.
+// Returns an empty string if the origin URL doesn't exist. (not connected to a remote repo yet)
+// Returns an error if not in a Git repository.
 func GetRepoOrigin() (string, error) {
 	if !CheckGitRepo() {
 		return "", errors.New("not a git repository")
@@ -43,6 +44,10 @@ func GetRepoOrigin() (string, error) {
 	cmd := exec.Command("git", "config", "--get", "remote.origin.url")
 	output, err := cmd.Output()
 	if err != nil {
+		var exitError *exec.ExitError
+		if errors.As(err, &exitError) && exitError.ExitCode() == 1 {
+			return "", nil
+		}
 		return "", err
 	}
 
