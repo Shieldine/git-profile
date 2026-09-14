@@ -204,6 +204,26 @@ func TestClearConfig(t *testing.T) {
 	}
 }
 
+func TestAddProfileWithSigningKey(t *testing.T) {
+	_, cleanup := setupTempConfig(t)
+	defer cleanup()
+
+	profile := models.ProfileConfig{
+		ProfileName:   "test",
+		SigningKey:    "ABCD1234",
+		SigningFormat: "ssh",
+	}
+	err := internal.AddProfile(profile)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	retrievedProfile := internal.GetProfileByName("test")
+	if retrievedProfile.SigningKey != "ABCD1234" || retrievedProfile.SigningFormat != "ssh" {
+		t.Errorf("expected signing key 'ABCD1234' and format 'ssh', got %+v", retrievedProfile)
+	}
+}
+
 func TestGetProfilesByOrigin(t *testing.T) {
 	_, cleanup := setupTempConfig(t)
 	defer cleanup()

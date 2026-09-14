@@ -428,6 +428,213 @@ func TestGetUserEmail(t *testing.T) {
 	}
 }
 
+// TestSetSigningKeyLocal tests the SetSigningKey function with local scope.
+func TestSetSigningKeyLocal(t *testing.T) {
+	tempDir, cleanup := setupTestRepo(t)
+	defer cleanup()
+
+	originalDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}(originalDir)
+
+	err = os.Chdir(tempDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	key := "ABCD1234"
+	if err := internal.SetSigningKey(key, false); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	cmd := exec.Command("git", "config", "--get", "--local", "user.signingkey")
+	output, err := cmd.Output()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if strings.TrimSpace(string(output)) != key {
+		t.Errorf("expected signing key to be %s, got %s", key, output)
+	}
+}
+
+// TestGetSigningKey tests the GetSigningKey function to ensure it correctly retrieves the local signing key.
+func TestGetSigningKey(t *testing.T) {
+	tempDir, cleanup := setupTestRepo(t)
+	defer cleanup()
+
+	originalDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}(originalDir)
+
+	err = os.Chdir(tempDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := exec.Command("git", "config", "--local", "user.signingkey", "ABCD1234")
+	if err := cmd.Run(); err != nil {
+		t.Fatal(err)
+	}
+
+	retrievedKey, err := internal.GetSigningKey()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if retrievedKey != "ABCD1234" {
+		t.Errorf("expected signing key to be 'ABCD1234', got %s", retrievedKey)
+	}
+}
+
+// TestGetSigningKeyNotSet tests that GetSigningKey returns a NotSetError when no signing key is configured.
+func TestGetSigningKeyNotSet(t *testing.T) {
+	tempDir, cleanup := setupTestRepo(t)
+	defer cleanup()
+
+	originalDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}(originalDir)
+
+	err = os.Chdir(tempDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = internal.GetSigningKey()
+	if err == nil {
+		t.Error("expected an error when getting unset signing key, but got none")
+	}
+}
+
+// TestUnsetSigningKeyLocal tests the UnsetSigningKey function with local scope.
+func TestUnsetSigningKeyLocal(t *testing.T) {
+	tempDir, cleanup := setupTestRepo(t)
+	defer cleanup()
+
+	originalDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}(originalDir)
+
+	err = os.Chdir(tempDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := exec.Command("git", "config", "--local", "user.signingkey", "ABCD1234")
+	if err := cmd.Run(); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := internal.UnsetSigningKey(false); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	cmd = exec.Command("git", "config", "--get", "--local", "user.signingkey")
+	if err := cmd.Run(); err == nil {
+		t.Error("expected an error when getting unset signing key, but got none")
+	}
+}
+
+// TestSetGpgFormatLocal tests the SetGpgFormat function with local scope.
+func TestSetGpgFormatLocal(t *testing.T) {
+	tempDir, cleanup := setupTestRepo(t)
+	defer cleanup()
+
+	originalDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}(originalDir)
+
+	err = os.Chdir(tempDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := internal.SetGpgFormat("ssh", false); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	cmd := exec.Command("git", "config", "--get", "--local", "gpg.format")
+	output, err := cmd.Output()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if strings.TrimSpace(string(output)) != "ssh" {
+		t.Errorf("expected gpg.format to be 'ssh', got %s", output)
+	}
+}
+
+// TestSetCommitSigningLocal tests the SetCommitSigning function with local scope.
+func TestSetCommitSigningLocal(t *testing.T) {
+	tempDir, cleanup := setupTestRepo(t)
+	defer cleanup()
+
+	originalDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}(originalDir)
+
+	err = os.Chdir(tempDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := internal.SetCommitSigning(true, false); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	cmd := exec.Command("git", "config", "--get", "--local", "commit.gpgsign")
+	output, err := cmd.Output()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if strings.TrimSpace(string(output)) != "true" {
+		t.Errorf("expected commit.gpgsign to be 'true', got %s", output)
+	}
+}
+
 // TestGetGlobalUserEmail tests the GetGlobalUserEmail function to ensure it correctly retrieves the global user email.
 func TestGetGlobalUserEmail(t *testing.T) {
 	email := "global@example.com"

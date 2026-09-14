@@ -228,6 +228,166 @@ func GetGlobalUserEmail() (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
+// SetSigningKey sets the Git user.signingkey configuration.
+// If global is true, sets the global configuration; otherwise sets local repository configuration.
+// Returns an error if not in a Git repository (when global is false) or if the git command fails.
+func SetSigningKey(key string, global bool) error {
+	if !global && !CheckGitRepo() {
+		return errors.New("not a git repository")
+	}
+
+	args := []string{"config", "user.signingkey", key}
+	if global {
+		args = []string{"config", "--global", "user.signingkey", key}
+	}
+
+	cmd := exec.Command("git", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+// GetSigningKey retrieves the local Git user.signingkey configuration.
+// Returns the signing key string or an error if not in a Git repository or if it is not set.
+// Returns a custom NotSetError if the signing key is not configured locally.
+func GetSigningKey() (string, error) {
+	if !CheckGitRepo() {
+		return "", errors.New("not a git repository")
+	}
+	cmd := exec.Command("git", "config", "--get", "--local", "user.signingkey")
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+		var exitError *exec.ExitError
+
+		ok := errors.As(err, &exitError)
+		if ok && exitError.ExitCode() == 1 && err.Error() == "exit status 1" {
+			return "", &custom_errors.NotSetError{ConfigName: "signing key"}
+		} else {
+			return "", err
+		}
+	}
+	return strings.TrimSpace(string(output)), nil
+}
+
+// GetGlobalSigningKey retrieves the global Git user.signingkey configuration.
+// Returns the signing key string or an error if it is not set globally.
+// Returns a custom NotSetError if the signing key is not configured globally.
+func GetGlobalSigningKey() (string, error) {
+	cmd := exec.Command("git", "config", "--get", "--global", "user.signingkey")
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+		var exitError *exec.ExitError
+
+		ok := errors.As(err, &exitError)
+		if ok && exitError.ExitCode() == 1 && err.Error() == "exit status 1" {
+			return "", &custom_errors.NotSetError{ConfigName: "signing key", Global: true}
+		} else {
+			return "", err
+		}
+	}
+	return strings.TrimSpace(string(output)), nil
+}
+
+// UnsetSigningKey removes the Git user.signingkey configuration.
+// If global is true, unsets the global configuration; otherwise unsets local repository configuration.
+// Returns an error if not in a Git repository (when global is false), if no signing key is set, or if the git command fails.
+func UnsetSigningKey(global bool) error {
+	if !global && !CheckGitRepo() {
+		return errors.New("not a git repository")
+	}
+
+	var args []string
+	if !global {
+		_, err := GetSigningKey()
+		if err != nil {
+			return errors.New("no local signing key to unset")
+		}
+
+		args = []string{"config", "--unset", "user.signingkey"}
+	} else {
+		_, err := GetGlobalSigningKey()
+		if err != nil {
+			return errors.New("no global signing key to unset")
+		}
+
+		args = []string{"config", "--global", "--unset", "user.signingkey"}
+	}
+
+	cmd := exec.Command("git", args...)
+	_, err := cmd.Output()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// SetGpgFormat sets the Git gpg.format configuration (e.g. "openpgp", "ssh", "x509").
+// If global is true, sets the global configuration; otherwise sets local repository configuration.
+// Returns an error if not in a Git repository (when global is false) or if the git command fails.
+func SetGpgFormat(format string, global bool) error {
+	if !global && !CheckGitRepo() {
+		return errors.New("not a git repository")
+	}
+
+	args := []string{"config", "gpg.format", format}
+	if global {
+		args = []string{"config", "--global", "gpg.format", format}
+	}
+
+	cmd := exec.Command("git", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+// GetGpgFormat retrieves the local Git gpg.format configuration.
+// Returns a custom NotSetError if the format is not configured locally.
+func GetGpgFormat() (string, error) {
+	if !CheckGitRepo() {
+		return "", errors.New("not a git repository")
+	}
+	cmd := exec.Command("git", "config", "--get", "--local", "gpg.format")
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+		var exitError *exec.ExitError
+
+		ok := errors.As(err, &exitError)
+		if ok && exitError.ExitCode() == 1 && err.Error() == "exit status 1" {
+			return "", &custom_errors.NotSetError{ConfigName: "signing format"}
+		} else {
+			return "", err
+		}
+	}
+	return strings.TrimSpace(string(output)), nil
+}
+
+// SetCommitSigning enables or disables automatic commit signing (commit.gpgsign).
+// If global is true, sets the global configuration; otherwise sets local repository configuration.
+// Returns an error if not in a Git repository (when global is false) or if the git command fails.
+func SetCommitSigning(enabled bool, global bool) error {
+	if !global && !CheckGitRepo() {
+		return errors.New("not a git repository")
+	}
+
+	value := "false"
+	if enabled {
+		value = "true"
+	}
+
+	args := []string{"config", "commit.gpgsign", value}
+	if global {
+		args = []string{"config", "--global", "commit.gpgsign", value}
+	}
+
+	cmd := exec.Command("git", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
 // UnsetUserEmail removes the Git user.email configuration.
 // If global is true, unsets the global configuration; otherwise unsets local repository configuration.
 // Returns an error if not in a Git repository (when global is false), if no email is set, or if the git command fails.

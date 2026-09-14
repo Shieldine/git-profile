@@ -16,10 +16,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/Shieldine/git-profile/internal"
 	"github.com/Shieldine/git-profile/models"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var all bool

@@ -16,9 +16,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/Shieldine/git-profile/internal"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 // unsetCmd represents the unset command for removing Git attributes

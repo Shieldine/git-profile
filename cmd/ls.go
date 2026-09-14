@@ -16,16 +16,19 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/Shieldine/git-profile/internal"
 	"github.com/Shieldine/git-profile/models"
 	"github.com/spf13/cobra"
 )
 
 var (
-	profileName string
-	name        string
-	email       string
-	origin      string
+	profileName   string
+	name          string
+	email         string
+	origin        string
+	signingKey    string
+	signingFormat string
 )
 
 // lsCmd represents the list command for displaying git profiles
@@ -105,6 +108,12 @@ func PrintProfile(profile models.ProfileConfig) {
 	fmt.Printf("  Origin: %s\n", profile.Origin)
 	fmt.Printf("  Name: %s\n", profile.Name)
 	fmt.Printf("  Email: %s\n", profile.Email)
+	if profile.SigningKey != "" {
+		fmt.Printf("  Signing key: %s\n", profile.SigningKey)
+		if profile.SigningFormat != "" {
+			fmt.Printf("  Signing format: %s\n", profile.SigningFormat)
+		}
+	}
 	fmt.Println()
 }
 

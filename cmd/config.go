@@ -40,6 +40,8 @@ You can manually type in new profiles by using the following scheme:
   name = ""
   email = ""
   origin = ""
+  signing_key = ""
+  signing_format = ""
 
 Examples:
   # Edit config with default editor (vim)

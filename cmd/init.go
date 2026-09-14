@@ -17,11 +17,12 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/Shieldine/git-profile/internal"
 	"github.com/Shieldine/git-profile/models"
 	"github.com/spf13/cobra"
-	"os"
-	"strings"
 )
 
 // initCmd represents the init command for automatically setting git attributes
@@ -70,46 +71,20 @@ func runInit(cmd *cobra.Command, _ []string) {
 		if answer == "n" {
 			fmt.Println("Nothing to do")
 			return
-		} else {
-			runAdd(cmd, []string{})
 		}
 
+		runAdd(cmd, []string{})
 		possibleProfiles = internal.GetProfilesByOrigin(currentOrigin)
 
-		if CredentialsAlreadySet(possibleProfiles[0]) {
-			fmt.Println("Repository already has correct credentials. Nothing to do.")
+		if len(possibleProfiles) == 0 {
 			return
 		}
+	}
 
-		err = internal.SetUserName(possibleProfiles[0].Name, false)
-		if err != nil {
-			fmt.Println(err)
-		}
+	var selectedProfile models.ProfileConfig
 
-		err = internal.SetUserEmail(possibleProfiles[0].Email, false)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		fmt.Printf("Credentials of profile %s set for current project.\n", possibleProfiles[0].ProfileName)
-
-	} else if len(possibleProfiles) == 1 {
-		if CredentialsAlreadySet(possibleProfiles[0]) {
-			fmt.Println("Repository already has correct credentials. Nothing to do.")
-			return
-		}
-
-		err = internal.SetUserName(possibleProfiles[0].Name, false)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		err = internal.SetUserEmail(possibleProfiles[0].Email, false)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		fmt.Printf("Credentials of profile %s set for current project.\n", possibleProfiles[0].ProfileName)
+	if len(possibleProfiles) == 1 {
+		selectedProfile = possibleProfiles[0]
 	} else {
 		fmt.Printf("Multiple profiles found for origin %s\n", currentOrigin)
 		for _, possibleProfile := range possibleProfiles {
@@ -119,15 +94,13 @@ func runInit(cmd *cobra.Command, _ []string) {
 
 		reader := bufio.NewReader(os.Stdin)
 
-		selectedProfile := models.ProfileConfig{}
-
 		for {
-			profileName, _ = reader.ReadString('\n')
-			profileName = strings.TrimSpace(profileName)
+			choice, _ := reader.ReadString('\n')
+			choice = strings.TrimSpace(choice)
 
 			fits := false
 			for _, possibleProfile := range possibleProfiles {
-				if profileName == possibleProfile.ProfileName {
+				if choice == possibleProfile.ProfileName {
 					fits = true
 					selectedProfile = possibleProfile
 				}
@@ -138,33 +111,77 @@ func runInit(cmd *cobra.Command, _ []string) {
 				fmt.Println("Invalid choice. Please try again.")
 			}
 		}
-
-		if CredentialsAlreadySet(selectedProfile) {
-			fmt.Println("Repository already has correct credentials. Nothing to do.")
-			return
-		}
-
-		err = internal.SetUserName(selectedProfile.Name, false)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		err = internal.SetUserEmail(selectedProfile.Email, false)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		fmt.Printf("Credentials of profile %s set for current project.\n", selectedProfile.ProfileName)
 	}
+
+	if CredentialsAlreadySet(selectedProfile) {
+		fmt.Println("Repository already has correct credentials. Nothing to do.")
+		return
+	}
+
+	if err := ApplyProfile(selectedProfile, false); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Credentials of profile %s set for current project.\n", selectedProfile.ProfileName)
 }
 
-// CredentialsAlreadySet checks if the current repository already has the same credentials as the given profile.
-// Returns true if both name and email match, false otherwise.
+// CredentialsAlreadySet checks if the current repository already has the same credentials as the given profile,
+// including the signing key and format when the profile defines one.
+// Returns true if everything matches, false otherwise.
 func CredentialsAlreadySet(profile models.ProfileConfig) bool {
 	currentName, _ := internal.GetUserName()
 	currentEmail, _ := internal.GetUserEmail()
 
-	return profile.Name == currentName && profile.Email == currentEmail
+	if profile.Name != currentName || profile.Email != currentEmail {
+		return false
+	}
+
+	if profile.SigningKey != "" {
+		currentSigningKey, _ := internal.GetSigningKey()
+		if profile.SigningKey != currentSigningKey {
+			return false
+		}
+
+		if profile.SigningFormat != "" {
+			currentSigningFormat, _ := internal.GetGpgFormat()
+			if profile.SigningFormat != currentSigningFormat {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// ApplyProfile applies a profile's git username, email, and (if configured) commit
+// signing settings to the current repository, or globally when global is true.
+func ApplyProfile(profile models.ProfileConfig, global bool) error {
+	if err := internal.SetUserName(profile.Name, global); err != nil {
+		return err
+	}
+
+	if err := internal.SetUserEmail(profile.Email, global); err != nil {
+		return err
+	}
+
+	if profile.SigningKey != "" {
+		if err := internal.SetSigningKey(profile.SigningKey, global); err != nil {
+			return err
+		}
+
+		if profile.SigningFormat != "" {
+			if err := internal.SetGpgFormat(profile.SigningFormat, global); err != nil {
+				return err
+			}
+		}
+
+		if err := internal.SetCommitSigning(true, global); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func init() {

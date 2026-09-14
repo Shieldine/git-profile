@@ -91,6 +91,16 @@ Use "git-profile [command] --help" for more information about a command.
    git-profile add work --name "John Doe" --email "john@company.com" --origin github.com
    ```
 
+   Optionally attach a commit signing key. When set, `init`/`set` will also configure
+   the repository (or global config) to sign commits with that key:
+   ```bash
+   # GPG key
+   git-profile add work --name "John Doe" --email "john@company.com" --origin github.com --signing-key ABCD1234
+
+   # SSH key
+   git-profile add work --name "John Doe" --email "john@company.com" --origin github.com --signing-key ~/.ssh/id_ed25519.pub --signing-format ssh
+   ```
+
 2. **List your profiles**:
    ```bash
    git-profile list
@@ -127,6 +137,7 @@ Use "git-profile [command] --help" for more information about a command.
 - Other than `init`, the most important commands are: `add`, `list`, `rm` and `update`
 - For some more convenience in handling repositories that you want to play with, take a look at `check`, `set`, `unset` and `tempset`
 - `check`, `set`, `unset` and `tempset` also support a `--global` flag to manipulate the global git config
+- If a profile has a signing key set, `init` and `set` will configure `user.signingkey`, `gpg.format` (when specified) and `commit.gpgsign` for you
 
 
 ## Development

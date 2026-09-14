@@ -17,20 +17,24 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/Shieldine/git-profile/internal"
 	"github.com/Shieldine/git-profile/models"
 	"github.com/spf13/cobra"
-	"os"
-	"strings"
 )
 
 var (
-	newName   string
-	newEmail  string
-	newOrigin string
-	oldName   string
-	oldEmail  string
-	oldOrigin string
+	newName          string
+	newEmail         string
+	newOrigin        string
+	newSigningKey    string
+	newSigningFormat string
+	oldName          string
+	oldEmail         string
+	oldOrigin        string
+	oldSigningKey    string
 )
 
 // editCmd represents the update command
@@ -39,7 +43,7 @@ var editCmd = &cobra.Command{
 	Aliases: []string{"edit", "u", "e"},
 	Args:    cobra.MaximumNArgs(1),
 	Short:   "Update one or multiple profiles",
-	Long: `Update profiles based on provided criteria.
+	Long: `Updates profiles based on provided criteria.
 
 When a profile name is provided, updates only that specific profile.
 Without a profile name, updates all profiles matching the filter criteria.
@@ -59,6 +63,12 @@ Examples:
 
   # Update all profiles with a specific origin
   git-profile update --old-origin github.com --origin gitlab.com
+
+  # Set or change a profile's signing key
+  git-profile update myprofile --signing-key ABCD1234
+
+  # Remove a profile's signing key (interactively, answer "none" to the prompt)
+  git-profile update myprofile
 `,
 	Run: runUpdate,
 }
@@ -123,11 +133,52 @@ func runUpdate(_ *cobra.Command, args []string) {
 			newOrigin = currentOrigin
 		}
 
+		if newSigningKey == "" {
+			if oldProfile.SigningKey != "" {
+				fmt.Printf("Signing key (enter to keep %s, type \"none\" to remove): ", oldProfile.SigningKey)
+			} else {
+				fmt.Print("Signing key (optional, press enter to skip): ")
+			}
+			newSigningKey, _ = reader.ReadString('\n')
+			newSigningKey = strings.TrimSpace(newSigningKey)
+
+			if newSigningKey == "" {
+				newSigningKey = oldProfile.SigningKey
+			}
+		}
+
+		if newSigningKey == "none" {
+			newSigningKey = ""
+		}
+
+		if newSigningKey != "" && newSigningFormat == "" {
+			if oldProfile.SigningFormat != "" {
+				fmt.Printf("Signing format (enter to keep %s): ", oldProfile.SigningFormat)
+			} else {
+				fmt.Print("Signing format (openpgp/ssh/x509, press enter for default): ")
+			}
+			newSigningFormat, _ = reader.ReadString('\n')
+			newSigningFormat = strings.TrimSpace(newSigningFormat)
+
+			if newSigningFormat == "" {
+				newSigningFormat = oldProfile.SigningFormat
+			}
+		} else if newSigningKey == "" {
+			newSigningFormat = ""
+		}
+
+		if !isValidSigningFormat(newSigningFormat) {
+			fmt.Printf("Error: invalid signing format %q. Valid options are: openpgp, ssh, x509\n", newSigningFormat)
+			os.Exit(1)
+		}
+
 		err := internal.EditProfile(profileName, models.ProfileConfig{
-			ProfileName: profileName,
-			Name:        newName,
-			Email:       newEmail,
-			Origin:      newOrigin,
+			ProfileName:   profileName,
+			Name:          newName,
+			Email:         newEmail,
+			Origin:        newOrigin,
+			SigningKey:    newSigningKey,
+			SigningFormat: newSigningFormat,
 		})
 		if err != nil {
 			fmt.Printf("Error updating profile: %v\n", err)
@@ -139,13 +190,18 @@ func runUpdate(_ *cobra.Command, args []string) {
 	}
 
 	// Batch update
-	if oldName == "" && oldEmail == "" && oldOrigin == "" {
-		fmt.Println("Error: When updating multiple profiles, you must specify at least one filter criteria (--old-name, --old-email, or --old-origin).")
+	if oldName == "" && oldEmail == "" && oldOrigin == "" && oldSigningKey == "" {
+		fmt.Println("Error: When updating multiple profiles, you must specify at least one filter criteria (--old-name, --old-email, --old-origin, or --old-signing-key).")
 		return
 	}
 
-	if newName == "" && newEmail == "" && newOrigin == "" {
-		fmt.Println("Error: When updating multiple profiles, you must specify at least one new value (--name, --email, or --origin).")
+	if newName == "" && newEmail == "" && newOrigin == "" && newSigningKey == "" && newSigningFormat == "" {
+		fmt.Println("Error: When updating multiple profiles, you must specify at least one new value (--name, --email, --origin, --signing-key, or --signing-format).")
+		return
+	}
+
+	if !isValidSigningFormat(newSigningFormat) {
+		fmt.Printf("Error: invalid signing format %q. Valid options are: openpgp, ssh, x509\n", newSigningFormat)
 		return
 	}
 
@@ -162,15 +218,18 @@ func runUpdate(_ *cobra.Command, args []string) {
 
 		if (oldName != "" && profile.Name != oldName) ||
 			(oldEmail != "" && profile.Email != oldEmail) ||
-			(oldOrigin != "" && profile.Origin != oldOrigin) {
+			(oldOrigin != "" && profile.Origin != oldOrigin) ||
+			(oldSigningKey != "" && profile.SigningKey != oldSigningKey) {
 			continue
 		}
 
 		updatedProfile := models.ProfileConfig{
-			ProfileName: profile.ProfileName,
-			Name:        profile.Name,
-			Email:       profile.Email,
-			Origin:      profile.Origin,
+			ProfileName:   profile.ProfileName,
+			Name:          profile.Name,
+			Email:         profile.Email,
+			Origin:        profile.Origin,
+			SigningKey:    profile.SigningKey,
+			SigningFormat: profile.SigningFormat,
 		}
 
 		if newName != "" {
@@ -192,6 +251,12 @@ func runUpdate(_ *cobra.Command, args []string) {
 			} else {
 				updatedProfile.Origin = newOrigin
 			}
+		}
+		if newSigningKey != "" {
+			updatedProfile.SigningKey = newSigningKey
+		}
+		if newSigningFormat != "" {
+			updatedProfile.SigningFormat = newSigningFormat
 		}
 
 		err := internal.EditProfile(profile.ProfileName, updatedProfile)
@@ -217,8 +282,11 @@ func init() {
 	editCmd.Flags().StringVarP(&newName, "name", "n", "", "Set the new name value")
 	editCmd.Flags().StringVarP(&newEmail, "email", "e", "", "Set the new email value")
 	editCmd.Flags().StringVarP(&newOrigin, "origin", "o", "", "Set the new origin value. Type \"auto\" to use current repository's origin")
+	editCmd.Flags().StringVarP(&newSigningKey, "signing-key", "s", "", "Set the new signing key value. Type \"none\" during an interactive update to remove it")
+	editCmd.Flags().StringVar(&newSigningFormat, "signing-format", "", "Set the new signing format (openpgp, ssh, x509)")
 
 	editCmd.Flags().StringVar(&oldName, "old-name", "", "Filter profiles by name")
 	editCmd.Flags().StringVar(&oldEmail, "old-email", "", "Filter profiles by email")
 	editCmd.Flags().StringVar(&oldOrigin, "old-origin", "", "Filter profiles by origin")
+	editCmd.Flags().StringVar(&oldSigningKey, "old-signing-key", "", "Filter profiles by signing key")
 }

@@ -18,9 +18,10 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/Shieldine/git-profile/custom_errors"
 	"os"
 	"strings"
+
+	"github.com/Shieldine/git-profile/custom_errors"
 
 	"github.com/Shieldine/git-profile/internal"
 	"github.com/Shieldine/git-profile/models"
@@ -98,15 +99,17 @@ func runSet(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	var currentName, currentEmail string
+	var currentName, currentEmail, currentSigningKey string
 	var nameErr, emailErr error
 
 	if global {
 		currentName, nameErr = internal.GetGlobalUserName()
 		currentEmail, emailErr = internal.GetGlobalUserEmail()
+		currentSigningKey, _ = internal.GetGlobalSigningKey()
 	} else {
 		currentName, nameErr = internal.GetUserName()
 		currentEmail, emailErr = internal.GetUserEmail()
+		currentSigningKey, _ = internal.GetSigningKey()
 	}
 
 	if nameErr != nil {
@@ -125,7 +128,12 @@ func runSet(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if profile.Name == currentName && profile.Email == currentEmail {
+	credentialsMatch := profile.Name == currentName && profile.Email == currentEmail
+	if profile.SigningKey != "" && profile.SigningKey != currentSigningKey {
+		credentialsMatch = false
+	}
+
+	if credentialsMatch {
 		if global {
 			fmt.Println("Global configuration already has correct credentials. Nothing to do.")
 		} else {
@@ -134,15 +142,8 @@ func runSet(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	err := internal.SetUserName(profile.Name, global)
-	if err != nil {
-		fmt.Printf("Error setting user name: %s\n", err)
-		os.Exit(1)
-	}
-
-	err = internal.SetUserEmail(profile.Email, global)
-	if err != nil {
-		fmt.Printf("Error setting user email: %s\n", err)
+	if err := ApplyProfile(profile, global); err != nil {
+		fmt.Printf("Error applying profile: %s\n", err)
 		os.Exit(1)
 	}
 

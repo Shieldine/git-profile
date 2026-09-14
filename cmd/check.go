@@ -16,9 +16,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/Shieldine/git-profile/internal"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 // checkCmd represents the check command for displaying current git credentials

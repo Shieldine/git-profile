@@ -39,6 +39,10 @@ Use flags to provide them directly.
 The origin of your current repository will already be filled in
 and subject to confirm or change.
 
+You can also attach a commit signing key to the profile. If set, running
+"git-profile init" or "git-profile set" will configure the repository to
+sign commits with that key automatically.
+
 Examples:
   # Add a profile interactively
   git-profile add
@@ -51,6 +55,12 @@ Examples:
 
   # Add a profile with auto-detected origin
   git-profile add myprofile --name "John Doe" --email "john@example.com" --origin auto
+
+  # Add a profile with a GPG signing key
+  git-profile add work --name "John Doe" --email "john@company.com" --origin github.com --signing-key ABCD1234
+
+  # Add a profile with an SSH signing key
+  git-profile add work --name "John Doe" --email "john@company.com" --origin github.com --signing-key ~/.ssh/id_ed25519.pub --signing-format ssh
 `,
 	Run: runAdd,
 }
@@ -106,11 +116,30 @@ func runAdd(_ *cobra.Command, args []string) {
 		}
 	}
 
+	if signingKey == "" {
+		fmt.Print("Signing key (optional, press enter to skip): ")
+		signingKey, _ = reader.ReadString('\n')
+		signingKey = strings.TrimSpace(signingKey)
+	}
+
+	if signingKey != "" && signingFormat == "" {
+		fmt.Print("Signing format (openpgp/ssh/x509, press enter for default): ")
+		signingFormat, _ = reader.ReadString('\n')
+		signingFormat = strings.TrimSpace(signingFormat)
+	}
+
+	if !isValidSigningFormat(signingFormat) {
+		fmt.Printf("Error: invalid signing format %q. Valid options are: openpgp, ssh, x509\n", signingFormat)
+		os.Exit(1)
+	}
+
 	newProfile := models.ProfileConfig{
-		ProfileName: profileName,
-		Name:        name,
-		Email:       email,
-		Origin:      newOrigin,
+		ProfileName:   profileName,
+		Name:          name,
+		Email:         email,
+		Origin:        newOrigin,
+		SigningKey:    signingKey,
+		SigningFormat: signingFormat,
 	}
 
 	err := internal.AddProfile(newProfile)
@@ -122,10 +151,22 @@ func runAdd(_ *cobra.Command, args []string) {
 	fmt.Printf("Added profile: %s for origin %s\n", profileName, newOrigin)
 }
 
+// isValidSigningFormat checks whether format is empty or one of git's accepted gpg.format values.
+func isValidSigningFormat(format string) bool {
+	switch format {
+	case "", "openpgp", "ssh", "x509":
+		return true
+	default:
+		return false
+	}
+}
+
 func init() {
 	rootCmd.AddCommand(addCmd)
 	addCmd.Flags().StringVarP(&name, "name", "n", "", "Set the name directly")
 	addCmd.Flags().StringVarP(&email, "email", "e", "", "Set the email directly")
 	addCmd.Flags().StringVarP(&origin, "origin", "o", "", "Set the origin directly."+
 		" Type \"auto\" to accept origin of the current repository")
+	addCmd.Flags().StringVarP(&signingKey, "signing-key", "s", "", "Set the commit signing key directly")
+	addCmd.Flags().StringVar(&signingFormat, "signing-format", "", "Set the signing format (openpgp, ssh, x509). Defaults to git's own default (openpgp)")
 }
