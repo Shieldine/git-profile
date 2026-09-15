@@ -30,8 +30,7 @@ import (
 var tempSetCmd = &cobra.Command{
 	Use:   "tempset",
 	Short: "Set attributes without defining a profile",
-	Long: `
-Set git attributes for the current repository or globally without saving them in a profile.
+	Long: `Set git attributes for the current repository or globally without saving them in a profile.
 The attributes can be passed as flags right away.
 If you don't pass them, you will be asked to provide a name and an email.
 
@@ -43,7 +42,8 @@ Examples:
   git-profile tempset --name "John Doe" --email "john@example.com"
 
   # Set temporary global attributes
-  git-profile tempset --global --name "John Doe" --email "john@example.com"`,
+  git-profile tempset --global --name "John Doe" --email "john@example.com"
+`,
 	Run: runTempSet,
 }
 

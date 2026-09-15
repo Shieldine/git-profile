@@ -33,12 +33,23 @@ var rootCmd = &cobra.Command{
 Save a profile together with its origin and let git-profile set the attributes next time you clone a new repository.
 To make managing names and emails more convenient in general, git-profile offers further commands that will let you
 check, unset and set credentials without creating a profile. You also get the option to do these things globally.
+
+Profiles are stored in a TOML config file. Run "git-profile config" to open it directly, or "git-profile list" to
+view your profiles. Use "git-profile completion --help" to set up shell autocompletion.
 `,
 }
 
+// Execute runs the root command, exiting with a non-zero status on error.
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
 	}
+}
+
+// RootCmd returns the root cobra command. It is exported so that tooling
+// (e.g. the docs generator in tools/gendocs) can walk the command tree
+// without duplicating its definition.
+func RootCmd() *cobra.Command {
+	return rootCmd
 }
